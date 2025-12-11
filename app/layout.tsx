@@ -5,6 +5,7 @@
 */
 
 import Link from "next/link";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -18,7 +19,7 @@ export default function RootLayout({
         <header style={styles.header}>
           {/* 左侧   */}
           <Link href="/" style={styles.logo}>
-            LOGO
+            序光
           </Link>
 
           {/* 右侧区域 */}
