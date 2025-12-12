@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Compass, Target, MessageCircle } from "lucide-react";
+import StarfieldBackground from "@/components/starfieldBackground";
 
 export default function HomePage() {
   const router = useRouter();
@@ -41,44 +42,16 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#050510] text-white overflow-hidden">
+    <div className="relative z-10 min-h-screen bg-[#050510] text-white overflow-hidden">
       {/* 背景渐变 */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_#1b1b3f,_#050510_60%,_#02010a)]" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,_#1b1b3f,_#050510_60%,_#02010a)]" />
 
       {/* 网格 */}
-      <div className="absolute inset-0 opacity-[0.3] bg-[linear-gradient(to_right,rgba(148,163,184,0.09)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.09)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="absolute inset-0 z-1 opacity-[0.3] bg-[linear-gradient(to_right,rgba(148,163,184,0.09)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.09)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-      {/* 星星 */}
-      {Array.from({ length: 40 }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute bg-white rounded-full opacity-20 animate-pulse-soft"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: `${Math.random() + 1}px`,
-            height: `${Math.random() + 1}px`,
-            animationDuration: `${Math.random() * 3 + 1}s`,
-          }}
-        />
-      ))}
+      <StarfieldBackground />
 
-      {/* 流星 */}
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={`meteor-${i}`}
-          className="shooting-star z-20 transform-gpu"
-          style={{
-            top: `${Math.random() * 50}%`,
-            left: `${Math.random() * 100}%`,
-            animation: `shooting-star 5s ease-out ${
-              Math.random() * 6
-            }s infinite`,
-          }}
-        />
-      ))}
-
-      {/* 大标题 */}
+      {/* 页面内容 */}
       <main className="relative z-10 max-w-5xl mx-auto px-6 pt-40 pb-32">
         <section className="text-center mb-20">
           <h1 className="text-5xl md:text-8xl font-thin mb-8 animate-fade-in tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 drop-shadow-[0_0_30px_rgba(255,255,255,0.6)]">

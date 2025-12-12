@@ -26,8 +26,6 @@ body {
 
 .shooting-star {
   position: absolute;
-  width: 130px;
-  height: 2px;
   background: linear-gradient(
     to right,
     rgba(255, 255, 255, 0),

@@ -6,6 +6,7 @@ export type NodeContent = {
   id: string;
   title: string;
   description: string;
+  cloud: string;
 };
 
 //all indexs (all nodes)

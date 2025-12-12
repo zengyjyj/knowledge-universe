@@ -5,4 +5,5 @@ export const elderHealthCheck: NodeContent = {
   id: "elder-health-check",
   title: "中老年人体检",
   description: "中老年人体检内容内容内容内容内容内容",
+  cloud: "life",
 };
