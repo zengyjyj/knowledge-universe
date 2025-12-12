@@ -122,29 +122,13 @@ export default function ExplorePage() {
             <div className="flex flex-wrap gap-6">
               {Object.values(NODES)
                 .filter((n) => n.cloud === currentCloud)
-                .map((node) => {
-                  const color = cloudColors[node.cloud];
-
-                  return (
-                    <Link
-                      key={node.id}
-                      href={`/node/${node.id}`}
-                      className="block p-4 w-60 border rounded-lg 
-            border-white/40 bg-white/5 transition-all duration-300"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = color;
-                        e.currentTarget.style.boxShadow = `0 0 18px ${color}`;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor =
-                          "rgba(255,255,255,0.2)";
-                        e.currentTarget.style.boxShadow = "none";
-                      }}
-                    >
-                      <h4 className="text-center">{node.title}</h4>
-                    </Link>
-                  );
-                })}
+                .map((node) => (
+                  <NodeCard
+                    key={node.id}
+                    node={node}
+                    color={cloudColors[node.cloud]}
+                  />
+                ))}
             </div>
           </div>
         )}
@@ -159,12 +143,12 @@ function CloudCard({ cloud, href, color }: any) {
     <Link
       href={href}
       className="
-    group flex flex-col items-center justify-center
-    w-40 h-40 rounded-full p-4
-    bg-white/5 backdrop-blur border border-white/10
-    transition-all duration-300 cursor-pointer
-    hover:scale-110 
-  "
+        group flex flex-col items-center justify-center
+        w-40 h-40 rounded-full p-4
+        bg-white/5 backdrop-blur border border-white/10
+        transition-all duration-300 cursor-pointer
+        hover:scale-110   animate-soft-float
+      "
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = color;
         e.currentTarget.style.boxShadow = `0 0 25px ${color}`;
@@ -174,6 +158,12 @@ function CloudCard({ cloud, href, color }: any) {
         e.currentTarget.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
       }}
     >
+      <div
+        className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 
+                transition-all duration-500 scale-75 group-hover:scale-110"
+        style={{ background: color }}
+      />
+
       <div className="mb-2">{cloud.icon}</div>
 
       <h2 className="text-lg font-light group-hover:text-white text-center ">
@@ -216,5 +206,40 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
       <div className="shrink-0">{icon}</div>
       <span className="whitespace-nowrap">{label}</span>
     </button>
+  );
+}
+
+function NodeCard({ node, color }: any) {
+  return (
+    <Link
+      href={`/node/${node.id}`}
+      className="
+        group relative block p-5 w-60 rounded-xl
+        bg-white/5 border transition-all duration-300
+        hover:scale-105 cursor-pointer overflow-hidden
+      "
+      style={{
+        borderColor: "rgba(255,255,255,0.2)",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = color;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
+      }}
+    >
+      {/* 光晕 */}
+      <div
+        className="
+          absolute inset-0 rounded-xl opacity-0
+          group-hover:opacity-20 group-hover:scale-110
+          transition-all duration-500
+        "
+      />
+
+      <h4 className="relative z-10 text-center text-gray-200 group-hover:text-white">
+        {node.title}
+      </h4>
+    </Link>
   );
 }

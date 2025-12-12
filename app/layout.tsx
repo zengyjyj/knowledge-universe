@@ -7,6 +7,13 @@
 import Link from "next/link";
 import "./globals.css";
 
+export const metadata = {
+  title: "序光",
+  icons: {
+    icon: "/logo.png",
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -51,7 +58,7 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "10px 32px",
-    borderBottom: "0.8px solid #746c6cff",
+    borderBottom: "0.3px solid #352c3dff",
   },
 
   left: {
