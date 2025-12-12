@@ -37,14 +37,10 @@ export default function ExplorePage() {
   return (
     <>
       {/* 背景渐变 */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_center,_#1b1b3f,_#050510_60%,_#02010a)]" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_#1b1b3f,_#050510_60%,_#02010a)]" />
 
       <StarfieldBackground />
-
-      <div
-        className="relative z-10 h-screen w-screen overflow-hidden"
-        style={{ padding: 40 }}
-      >
+      <div className="relative  " style={{ padding: 40 }}>
         {/* 标题 + 模式切换按钮 */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-light">探索模式</h2>

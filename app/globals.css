@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 全局字体与背景确保正确 */
+/* 全局背景 */
 body {
   background: #050510;
   color: white;

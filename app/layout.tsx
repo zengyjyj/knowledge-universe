@@ -16,10 +16,11 @@ export default function RootLayout({
     <html lang="zh">
       <body>
         {/* 顶部导航 */}
-        <header style={styles.header}>
-          {/* 左侧   */}
-          <Link href="/" style={styles.logo}>
-            序光
+        <header className="relative z-50" style={styles.header}>
+          {/* 左侧 Logo + 名称 */}
+          <Link href="/" style={styles.left}>
+            <img src="/logo.png" alt="logo" style={styles.logoImage} />
+            <span style={styles.logoText}>序光</span>
           </Link>
 
           {/* 右侧区域 */}
@@ -29,7 +30,11 @@ export default function RootLayout({
             </Link>
 
             <Link href="/user">
-              <img src="/user.png" alt="个人空间" style={styles.profileImage} />
+              <img
+                src="/user.png"
+                alt="user space"
+                style={styles.profileImage}
+              />
             </Link>
           </div>
         </header>
@@ -40,27 +45,38 @@ export default function RootLayout({
     </html>
   );
 }
-
 const styles = {
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "3px 32px",
-    borderBottom: "1px solid #eee",
+    padding: "10px 32px",
+    borderBottom: "0.8px solid #746c6cff",
+  },
+
+  left: {
+    display: "flex",
+    alignItems: "center",
+    textDecoration: "none",
+    gap: 10,
+  },
+
+  logoImage: {
+    width: 36,
+    height: 36,
+  },
+
+  logoText: {
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "#fff",
+    letterSpacing: "2px",
   },
 
   right: {
     display: "flex",
     alignItems: "center",
-    gap: 12, // ✅ 间距
-  },
-
-  logo: {
-    fontWeight: "bold",
-    fontSize: 18,
-    textDecoration: "none",
-    color: "#000",
+    gap: 12,
   },
 
   askingImage: {
