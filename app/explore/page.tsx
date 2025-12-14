@@ -1,34 +1,14 @@
 "use client";
 
-import { JSX, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { CLOUDS } from "@/data/clouds";
+import { CLOUDS, cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
 import { NODES } from "@/data/nodes/types";
 import StarfieldBackground from "@/components/starfieldBackground";
-import {
-  LayoutGrid,
-  Layers,
-  Heart,
-  Book,
-  User,
-  Globe,
-  Star,
-} from "lucide-react";
+import { useTransitionStore } from "@/components/TransitionCloudTree";
+import { useRouter } from "next/navigation";
 
-const cloudIcons: Record<string, JSX.Element> = {
-  life: <Heart className="w-7 h-7 text-red-300" />,
-  learning: <Book className="w-7 h-7 text-blue-300" />,
-  skill: <Star className="w-7 h-7 text-yellow-300" />,
-  growth: <User className="w-7 h-7 text-green-300" />,
-  world: <Globe className="w-7 h-7 text-purple-300" />,
-};
-const cloudColors: Record<string, string> = {
-  life: "rgba(210, 109, 109, 0.4)",
-  learning: "rgba(100,150,255,0.4)",
-  skill: "rgba(255,220,100,0.4)",
-  growth: "rgba(35, 220, 22, 0.45)",
-  world: "rgba(212, 51, 172, 0.42)",
-};
+import { LayoutGrid, Layers } from "lucide-react";
 
 export default function ExplorePage() {
   const [mode, setMode] = useState<"structure" | "content">("structure");
@@ -38,9 +18,9 @@ export default function ExplorePage() {
     <>
       {/* 背景渐变 */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_#1b1b3f,_#050510_60%,_#02010a)]" />
-
       <StarfieldBackground />
-      <div className="relative  " style={{ padding: 40 }}>
+
+      <div className="relative " style={{ padding: 40 }}>
         {/* 标题 + 模式切换按钮 */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-light">探索模式</h2>
@@ -75,6 +55,7 @@ export default function ExplorePage() {
                 .map(([key, cloud]) => (
                   <CloudCard
                     key={key}
+                    keyName={key}
                     cloud={{ ...cloud, icon: cloudIcons[key] }}
                     color={cloudColors[key]}
                     href={`/explore/${key}`}
@@ -91,6 +72,7 @@ export default function ExplorePage() {
                 .map(([key, cloud]) => (
                   <CloudCard
                     key={key}
+                    keyName={key}
                     cloud={{ ...cloud, icon: cloudIcons[key] }}
                     color={cloudColors[key]}
                     href={`/explore/${key}`}
@@ -138,61 +120,95 @@ export default function ExplorePage() {
 }
 
 /* 5 clouds*/
-function CloudCard({ cloud, href, color }: any) {
+function CloudCard({ keyName, cloud, href, color }: any) {
+  const router = useRouter();
+  const setActiveCloud = useTransitionStore((s) => s.setActiveCloud);
+
+  const handleClick = (e: any) => {
+    e.preventDefault();
+
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect(); // 记录卡片位置信息
+
+    setActiveCloud({
+      key: keyName,
+      rect,
+    });
+    router.push(href);
+
+    card.style.transition = "all 0.6s ease";
+    card.style.transform = "translate(-300px, -250px) scale(0.4)";
+    card.style.opacity = "0.2";
+
+    setTimeout(() => router.push(href), 600);
+  };
+
   return (
-    <Link
-      href={href}
+    <div
+      onClick={handleClick}
       className="
-        group flex flex-col items-center justify-center
+        group relative flex flex-col items-center justify-center
         w-40 h-40 rounded-full p-4
         bg-white/5 backdrop-blur border border-white/10
         transition-all duration-300 cursor-pointer
-        hover:scale-110   animate-soft-float
+        hover:scale-110 animate-soft-float
       "
+      style={{
+        ["--cloud-color" as any]: color,
+      }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = color;
         e.currentTarget.style.boxShadow = `0 0 25px ${color}`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-        e.currentTarget.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+        e.currentTarget.style.boxShadow = "none";
       }}
     >
+      {/* 彩色扩散光晕 */}
       <div
-        className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 
-                transition-all duration-500 scale-75 group-hover:scale-110"
+        className="
+          absolute inset-0 rounded-full opacity-0
+          group-hover:opacity-30 group-hover:scale-110
+          transition-all duration-500   "
         style={{ background: color }}
       />
 
-      <div className="mb-2">{cloud.icon}</div>
+      <div className="relative z-10 mb-2  group-hover:text-[var(--cloud-color)]">
+        {cloud.icon}
+      </div>
 
-      <h2 className="text-lg font-light group-hover:text-white text-center ">
+      <h2 className="relative z-10 text-lg font-light group-hover:text-white text-center">
         {cloud.title}
       </h2>
 
-      <p className="text-gray-400 text-xs text-center mt-1 leading-relaxed">
+      <p className="relative z-10 text-gray-400 text-xs text-center mt-1 leading-relaxed">
         {cloud.description}
       </p>
-    </Link>
+    </div>
   );
 }
+
 function CloudButton({ label, icon, color, isActive, onClick }: any) {
   return (
     <button
       onClick={onClick}
       className={`
         w-full flex items-center justify-center gap-2 px-4 py-2
-        rounded-lg border text-sm transition
-        bg-white/5
-        ${isActive ? "text-white bg-white/10" : "text-gray-300"}
+        border text-sm transition    rounded-full 
       `}
       style={{
+        backgroundColor: isActive
+          ? withOpacity(color, 0.4)
+          : withOpacity(color, 0.05),
         borderColor: isActive ? color : "rgba(255,255,255,0.2)",
-        boxShadow: isActive ? `0 0 20px ${color}` : "none",
+        boxShadow: isActive ? `0 0 18px ${color}` : "none",
+        color: isActive ? "white" : "rgba(156,163,175,1)",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = color;
         e.currentTarget.style.boxShadow = `0 0 18px ${color}`;
+        e.currentTarget.style.color = "white";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = isActive
@@ -201,9 +217,19 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
         e.currentTarget.style.boxShadow = isActive
           ? `0 0 18px ${color}`
           : "none";
+        e.currentTarget.style.color = isActive
+          ? "white"
+          : "rgba(156,163,175,1)";
       }}
     >
-      <div className="shrink-0">{icon}</div>
+      <div
+        className="shrink-0 transition-colors duration-300"
+        style={{
+          color: isActive ? color : "rgba(255,255,255,0.5)",
+        }}
+      >
+        {icon}
+      </div>
       <span className="whitespace-nowrap">{label}</span>
     </button>
   );
@@ -234,6 +260,7 @@ function NodeCard({ node, color }: any) {
           absolute inset-0 rounded-xl opacity-0
           group-hover:opacity-20 group-hover:scale-110
           transition-all duration-500
+          
         "
       />
 

@@ -53,15 +53,17 @@ body {
 }
 
 .pulse-soft {
-  animation: pulse 2.5s infinite ease-in-out;
+  animation: pulse 4s infinite ease-in-out;
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.1;
+  0% {
+    opacity: 0.7;
   }
   50% {
-    opacity: 0.3;
+    opacity: 1.2;
+  }
+  100% {
+    opacity: 0.7;
   }
 }

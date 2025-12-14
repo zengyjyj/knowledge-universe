@@ -70,6 +70,30 @@ export const lifeTree: TreeNode = {
               id: "meal-control-weight",
               title: "减脂餐",
             },
+            {
+              id: "meal-control-weight",
+              title: "减脂餐2",
+            },
+            {
+              id: "meal-control-weight",
+              title: "减脂餐3",
+            },
+            {
+              id: "meal-control-weight",
+              title: "减脂餐2",
+            },
+            {
+              id: "meal-control-weight",
+              title: "减脂餐3",
+            },
+            {
+              id: "meal-control-weight",
+              title: "减脂餐2",
+            },
+            {
+              id: "meal-control-weight",
+              title: "减脂餐3",
+            },
           ],
         },
       ],

@@ -9,9 +9,20 @@ module.exports = {
           "100%": { opacity: 1, transform: "translateY(0)" },
         },
         pulseSoft: {
-          "0%": { opacity: 0.2, transform: "scale(1)" },
-          "100%": { opacity: 1, transform: "scale(1.6)" },
+          "0%": {
+            transform: "scale(1)",
+            filter: "brightness(1)",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+            filter: "brightness(1.2)",
+          },
+          "100%": {
+            transform: "scale(1)",
+            filter: "brightness(1)",
+          },
         },
+
         shootingStar: {
           "0%": { transform: "translateX(0) translateY(0)", opacity: 1 },
           "100%": {
@@ -26,7 +37,7 @@ module.exports = {
       },
       animation: {
         "fade-in": "fadeIn 1.2s ease-out forwards",
-        "pulse-soft": "pulseSoft 3s ease-in-out infinite alternate",
+        "pulse-soft": "pulseSoft 1s ease-in-out infinite alternate",
         "shooting-star": "shootingStar 3s linear infinite",
         "spin-slow": "spinSlow 20s linear infinite",
       },
