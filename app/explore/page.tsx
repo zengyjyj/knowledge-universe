@@ -1,18 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CLOUDS, cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
+import { cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
 import { NODES } from "@/data/nodes/types";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { useTransitionStore } from "@/components/TransitionCloudTree";
 import { useRouter } from "next/navigation";
-
 import { LayoutGrid, Layers } from "lucide-react";
+import { getAllClouds } from "@/data/queries/cloud";
+import type { Cloud } from "@/data/types/database";
 
 export default function ExplorePage() {
-  const [mode, setMode] = useState<"structure" | "content">("structure");
-  const [currentCloud, setCurrentCloud] = useState<keyof typeof CLOUDS>("life");
+  const [mode, setMode] = useState<"structure" | "content">("content");
+  const [clouds, setClouds] = useState<Cloud[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getAllClouds()
+      .then(setClouds)
+      .finally(() => setLoading(false));
+  }, []);
+  const [currentCloud, setCurrentCloud] = useState<string>("life");
 
   return (
     <>
@@ -50,34 +58,30 @@ export default function ExplorePage() {
           <div className="flex flex-col justify-center items-center w-full h-[80vh]">
             {/* 第一排：三个云 */}
             <div className="flex justify-center gap-[8vw]">
-              {Object.entries(CLOUDS)
-                .slice(0, 3)
-                .map(([key, cloud]) => (
-                  <CloudCard
-                    key={key}
-                    keyName={key}
-                    cloud={{ ...cloud, icon: cloudIcons[key] }}
-                    color={cloudColors[key]}
-                    href={`/explore/${key}`}
-                  />
-                ))}
+              {clouds.slice(0, 3).map((cloud) => (
+                <CloudCard
+                  key={cloud.name}
+                  keyName={cloud.name}
+                  cloud={{ ...cloud, icon: cloudIcons[cloud.name] }}
+                  color={cloudColors[cloud.name]}
+                  href={`/explore/${cloud.name}`}
+                />
+              ))}
             </div>
 
             <div className="h-[4vh]" />
 
             {/* 第二排：两个云 */}
             <div className="flex justify-center gap-[10vw]">
-              {Object.entries(CLOUDS)
-                .slice(3, 5)
-                .map(([key, cloud]) => (
-                  <CloudCard
-                    key={key}
-                    keyName={key}
-                    cloud={{ ...cloud, icon: cloudIcons[key] }}
-                    color={cloudColors[key]}
-                    href={`/explore/${key}`}
-                  />
-                ))}
+              {clouds.slice(3, 5).map((cloud) => (
+                <CloudCard
+                  key={cloud.name}
+                  keyName={cloud.name}
+                  cloud={{ ...cloud, icon: cloudIcons[cloud.name] }}
+                  color={cloudColors[cloud.name]}
+                  href={`/explore/${cloud.name}`}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -87,17 +91,20 @@ export default function ExplorePage() {
           <div className="mt-10">
             {/* 云按钮 */}
             <div className="flex justify-center gap-4 mb-8">
-              {Object.entries(CLOUDS).map(([key, cloud]) => (
-                <CloudButton
-                  key={key}
-                  keyName={key}
-                  label={cloud.title}
-                  icon={cloudIcons[key]}
-                  color={cloudColors[key]}
-                  isActive={currentCloud === key}
-                  onClick={() => setCurrentCloud(key as keyof typeof CLOUDS)}
-                />
-              ))}
+              {clouds.map((cloud) => {
+                console.log("cloud from db:", cloud);
+                return (
+                  <CloudButton
+                    key={cloud.name}
+                    keyName={cloud.name}
+                    label={cloud.title}
+                    icon={cloudIcons[cloud.name]}
+                    color={cloudColors[cloud.name]}
+                    isActive={currentCloud === cloud.name}
+                    onClick={() => setCurrentCloud(cloud.name)}
+                  />
+                );
+              })}
             </div>
 
             {/* node 列表 */}
