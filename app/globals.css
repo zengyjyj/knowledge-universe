@@ -10,6 +10,63 @@ body {
 }
 
 /* 流星动画 */
+.shooting-star {
+  position: absolute;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0)
+  );
+  border-radius: 999px;
+  opacity: 0;
+}
+
+.soft-float {
+  animation: soft-float 4s ease-in-out infinite;
+}
+
+.pulse-soft {
+  animation: pulse-soft 4s infinite ease-in-out;
+}
+
+/* 星星闪烁 */
+.animate-star {
+  animation: star-twinkle 3s ease-in-out infinite;
+}
+
+/*   背景渐变   */
+.bg-radial-space {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at top, #1b1b3f, #050510 60%, #02010a);
+}
+
+/*   科技网格   */
+.bg-tech-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.3;
+  background-image: linear-gradient(
+      to right,
+      rgba(148, 163, 184, 0.09) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.09) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes shooting-star {
   0% {
     transform: rotate(-45deg) translateX(0);
@@ -23,19 +80,6 @@ body {
     opacity: 0;
   }
 }
-
-.shooting-star {
-  position: absolute;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0)
-  );
-  border-radius: 999px;
-  opacity: 0;
-}
-
 @keyframes soft-float {
   0% {
     transform: translateY(0px);
@@ -48,15 +92,7 @@ body {
   }
 }
 
-.animate-soft-float {
-  animation: soft-float 4s ease-in-out infinite;
-}
-
-.pulse-soft {
-  animation: pulse 4s infinite ease-in-out;
-}
-
-@keyframes pulse {
+@keyframes pulse-soft {
   0% {
     opacity: 0.7;
   }
@@ -65,5 +101,20 @@ body {
   }
   100% {
     opacity: 0.7;
+  }
+}
+
+@keyframes star-twinkle {
+  0% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.4);
+  }
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
   }
 }

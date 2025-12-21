@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import StarfieldBackground from "@/components/starfieldBackground";
-import { cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
+import { cloudIcons, cloudColors } from "@/data/clouds";
 import React from "react";
 import { getAllCategoriesMap } from "@/data/queries/categories";
 import { getAllSubCategoriesMap } from "@/data/queries/subCategories";
@@ -22,6 +22,7 @@ export default function CloudPage() {
     Map<number, SubCategory[]>
   >(new Map());
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -32,69 +33,95 @@ export default function CloudPage() {
       setCloudsMap(cMap);
       setCategoriesMap(catMap);
       setSubCategoriesMap(subMap);
+      setLoading(false);
     });
   }, []);
 
-  const cloudName = params.cloud as string; //get current cloud
-  const cloudInfo = cloudsMap.get(cloudName);
-  if (!cloudInfo) return <div>云不存在</div>;
-  const categories = categoriesMap.get(cloudInfo.id) ?? [];
-  const subCategories =
-    activeCategoryId !== null
-      ? subCategoriesMap.get(activeCategoryId) ?? []
-      : [];
+  if (!loading) {
+    const cloudName = params.cloud as string; //get current cloud
+    const cloudInfo = cloudsMap.get(cloudName);
+    if (!cloudInfo) return <div>云不存在</div>;
+    const categories = categoriesMap.get(cloudInfo.id) ?? [];
+    const subCategories =
+      activeCategoryId !== null
+        ? subCategoriesMap.get(activeCategoryId) ?? []
+        : [];
 
-  return (
-    <div className="relative w-full overflow-hidden">
-      {/* 背景 */}
-      <div
-        className="absolute inset-0 -z-10 pointer-events-none 
-        bg-[radial-gradient(circle_at_center,_#1b1b3f,_#050510_60%,_#02010a)]"
-      />
-      <StarfieldBackground />
+    return (
+      <div className="relative w-full overflow-hidden">
+        <div className="bg-radial-space" />
+        <StarfieldBackground />
 
-      <div
-        className="relative z-10 text-white w-screen px-20 py-10"
-        style={{ padding: 20 }}
-      >
-        {/* 返回 */}
-        <Link
-          href="/explore"
-          className="text-gray-400 hover:text-white text-s  inline-block"
+        <div
+          className="relative z-10 text-white w-screen px-20 py-10"
+          style={{ padding: 30 }}
         >
-          ← 探索模式
-        </Link>
+          {/* 返回键 */}
+          <BackButton
+            cloud={cloudInfo}
+            activeCategoryId={activeCategoryId}
+            onBackToCloud={() => setActiveCategoryId(null)}
+          />
 
-        <div className="flex w-full justify-center  ">
-          <div className="flex w-full max-w-6xl gap-8" style={{ padding: 1 }}>
-            {/* 左侧cloud*/}
-            <div className="flex-[3] flex items-center justify-center h-[70vh]">
-              <div className="  center">
-                <CloudLargeCard cloudKey={cloudName} />
+          <div className="flex w-full justify-center  ">
+            <div className="flex w-full max-w-6xl gap-8" style={{ padding: 1 }}>
+              {/* 左侧cloud*/}
+              <div className="flex-[3.5] flex items-center justify-center  ">
+                <div className="  center">
+                  <CloudLargeCard cloudKey={cloudName} />
+                </div>
               </div>
-            </div>
 
-            {/* 右侧二/三级分类  */}
-            <div className="flex-[6] min-w-0  flex flex-col">
-              {activeCategoryId === null ? (
-                <CategoryGrid
-                  categories={categories}
-                  cloudInfo={cloudInfo}
-                  onSelect={(id) => setActiveCategoryId(id)}
-                />
-              ) : (
-                <SubCategoryCard
-                  cloud={cloudInfo}
-                  category={categories.find((c) => c.id === activeCategoryId)!}
-                  subCategories={subCategories}
-                  onBack={() => setActiveCategoryId(null)}
-                />
-              )}
+              {/* 右侧二/三级分类  */}
+              <div className="flex-[6] min-w-0  flex flex-col">
+                {activeCategoryId === null ? (
+                  <CategoryGrid
+                    categories={categories}
+                    cloudInfo={cloudInfo}
+                    onSelect={(id) => setActiveCategoryId(id)}
+                  />
+                ) : (
+                  <SubCategoryCard
+                    cloud={cloudInfo}
+                    category={
+                      categories.find((c) => c.id === activeCategoryId)!
+                    }
+                    subCategories={subCategories}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    );
+  }
+}
+
+function BackButton({
+  cloud,
+  activeCategoryId,
+  onBackToCloud,
+}: {
+  cloud: Cloud;
+  activeCategoryId: number | null;
+  onBackToCloud: () => void;
+}) {
+  if (activeCategoryId === null) {
+    return (
+      <Link href="/explore" className="text-gray-400 hover:text-white text-s">
+        ← 探索模式
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      onClick={onBackToCloud}
+      className="text-gray-400 hover:text-white text-s"
+    >
+      ← {cloud.title}
+    </button>
   );
 }
 
@@ -102,25 +129,28 @@ function CloudLargeCard({ cloudKey }: { cloudKey: string }) {
   const color = cloudColors[cloudKey];
   return (
     <svg
-      width={240}
-      height={240}
-      viewBox="0 0 260 260"
-      className="flex-none  animate-soft-float"
+      width={300}
+      height={300}
+      viewBox="-20 -20 300 300"
+      className="flex-none soft-float"
     >
       <defs>
         <filter id="glow">
-          <feGaussianBlur stdDeviation="12" result="coloredBlur" />
+          <feGaussianBlur stdDeviation="12" result="blur" />
           <feMerge>
-            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
       </defs>
 
+      <OrbitRings color={color} />
+      <OrbitStars />
+
       <circle
         cx="130"
         cy="130"
-        r="100"
+        r="92"
         fill="rgba(178, 166, 166, 0.05)"
         stroke={color}
         strokeWidth="2"
@@ -143,6 +173,7 @@ function CloudLargeCard({ cloudKey }: { cloudKey: string }) {
     </svg>
   );
 }
+
 function CategoryGrid({
   cloudInfo,
   categories,
@@ -153,9 +184,9 @@ function CategoryGrid({
   onSelect: (id: number) => void;
 }) {
   return (
-    <div className="mt-10">
-      <h3 className="text-4xl font-light text-white">{cloudInfo.title}</h3>
-      <p className="text-2xl text-gray-400 font-light mt-2">
+    <div className="mt-6">
+      <h3 className="text-5xl font-light text-white ">{cloudInfo.title}</h3>
+      <p className="text-xl text-gray-400 font-light mt-2">
         | {cloudInfo.description}
       </p>
 
@@ -165,13 +196,15 @@ function CategoryGrid({
             key={cat.id}
             onClick={() => onSelect(cat.id)}
             className="
-            rounded-xl p-6 text-left
+            rounded-3xl p-6 text-left
             bg-white/5 border border-white/15
             transition-all duration-300
             hover:bg-white/10 hover:scale-[1.01]   "
           >
-            <div className="text-lg font-light text-white">{cat.title}</div>
-            <div className="text-sm text-gray-400 mt-2">{cat.description}</div>
+            <div className="text-xl font-light text-white">{cat.title}</div>
+            <div className="text-sm text-gray-500 mt-1">
+              | {cat.description}
+            </div>
           </button>
         ))}
       </div>
@@ -183,43 +216,116 @@ function SubCategoryCard({
   category,
   cloud,
   subCategories,
-  onBack,
 }: {
   category: Category;
   cloud: Cloud;
   subCategories: SubCategory[];
-  onBack: () => void;
 }) {
   const router = useRouter();
-
   return (
-    <div className="mt-10">
-      <button
-        onClick={onBack}
-        className="mt-2 text-gray-400 hover:text-white text-sm"
-      >
-        ← 返回 {cloud.title}
-      </button>
+    <div className="mt-6">
+      <h3 className="text-5xl font-light  ">{category.title}</h3>
+      <p className="text-xl text-gray-400 font-light mt-2">
+        | {category.description}
+      </p>
 
-      <h3 className="text-4xl font-light mt-3">{category.title}</h3>
-
-      <div className="grid grid-cols-2 gap-6 mt-4">
+      <div className="grid grid-cols-2 gap-6 mt-8">
         {subCategories.map((sub) => (
           <button
             key={sub.id}
             onClick={() => router.push(`/explore/${cloud.name}/${sub.name}`)}
             className="
-              rounded-xl p-6 text-left
+              rounded-3xl p-6 text-left
               bg-white/5 border border-white/15
               transition-all duration-300
               hover:bg-white/10 hover:scale-[1.02]
             "
           >
-            <div className="text-lg font-light text-white">{sub.title}</div>
-            <div className="text-sm text-gray-400 mt-2">{sub.description}</div>
+            <div className="text-xl font-light text-white">{sub.title}</div>
+            <div className="text-sm text-gray-500 mt-1">
+              | {sub.description}
+            </div>
           </button>
         ))}
       </div>
     </div>
+  );
+}
+
+function OrbitRings({ color }: { color: string }) {
+  const rings = [
+    { r: 100, opacity: 0.44 },
+    { r: 107, opacity: 0.35 },
+    { r: 114, opacity: 0.25 },
+    { r: 122, opacity: 0.25 },
+    { r: 132, opacity: 0.15 },
+    { r: 140, opacity: 0.1 },
+    { r: 146, opacity: 0.09 },
+  ];
+
+  return (
+    <>
+      {rings.map((ring, i) => (
+        <circle
+          key={i}
+          cx="130"
+          cy="130"
+          r={ring.r}
+          fill="none"
+          stroke={color}
+          strokeWidth="1"
+          opacity={ring.opacity}
+        />
+      ))}
+    </>
+  );
+}
+
+function OrbitStars() {
+  return (
+    <>
+      <OrbitStar radius={100} angle={0} duration={20} opacity={0.9} />
+      <OrbitStar radius={107} angle={20} duration={18} opacity={0.8} />
+      <OrbitStar radius={114} angle={20} duration={16} opacity={0.75} />
+      <OrbitStar radius={114} angle={20} duration={15} opacity={0.7} />
+      <OrbitStar radius={122} angle={60} duration={13} opacity={0.65} />
+      <OrbitStar radius={122} angle={200} duration={13} opacity={0.6} />
+      <OrbitStar radius={140} angle={200} duration={14} opacity={0.55} />
+    </>
+  );
+}
+
+function OrbitStar({
+  radius,
+  angle,
+  size = 1.5,
+  color = "grey",
+  duration,
+  opacity,
+}: {
+  radius: number;
+  angle: number;
+  size?: number;
+  color?: string;
+  duration?: number;
+  opacity?: number;
+}) {
+  return (
+    <g
+      style={{
+        transformOrigin: "130px 130px",
+        animation: `spin ${duration}s linear infinite`,
+        animationDelay: `-${Math.random() * 10}s`,
+        transform: `rotate(${angle}deg)`,
+      }}
+    >
+      <circle
+        cx={130}
+        cy={130 - radius}
+        r={size}
+        fill={color}
+        opacity={opacity}
+      />
+    </g>
   );
 }

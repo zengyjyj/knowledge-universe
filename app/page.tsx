@@ -44,10 +44,10 @@ export default function HomePage() {
   return (
     <div className="relative z-10 min-h-screen bg-[#050510] text-white overflow-hidden">
       {/* 背景渐变 */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,_#1b1b3f,_#050510_60%,_#02010a)]" />
+      <div className="bg-radial-space" />
 
       {/* 网格 */}
-      <div className="absolute inset-0 z-1 opacity-[0.3] bg-[linear-gradient(to_right,rgba(148,163,184,0.09)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.09)_1px,transparent_1px)] bg-[size:40px_40px]" />
+      <div className="bg-tech-grid" />
 
       <StarfieldBackground />
 

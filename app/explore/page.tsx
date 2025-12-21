@@ -5,7 +5,6 @@ import Link from "next/link";
 import { cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
 import { NODES } from "@/data/nodes/types";
 import StarfieldBackground from "@/components/starfieldBackground";
-import { useTransitionStore } from "@/components/TransitionCloudTree";
 import { useRouter } from "next/navigation";
 import { LayoutGrid, Layers } from "lucide-react";
 import { getAllClouds } from "@/data/queries/cloud";
@@ -25,7 +24,8 @@ export default function ExplorePage() {
   return (
     <>
       {/* 背景渐变 */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_#1b1b3f,_#050510_60%,_#02010a)]" />
+      <div className="bg-radial-space" />
+
       <StarfieldBackground />
 
       <div className="relative " style={{ padding: 40 }}>
@@ -128,36 +128,16 @@ export default function ExplorePage() {
 /* 5 clouds*/
 function CloudCard({ keyName, cloud, href, color }: any) {
   const router = useRouter();
-  const setActiveCloud = useTransitionStore((s) => s.setActiveCloud);
-
-  const handleClick = (e: any) => {
-    e.preventDefault();
-
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect(); // 记录卡片位置信息
-
-    setActiveCloud({
-      key: keyName,
-      rect,
-    });
-    router.push(href);
-
-    card.style.transition = "all 0.6s ease";
-    card.style.transform = "translate(-300px, -250px) scale(0.4)";
-    card.style.opacity = "0.2";
-
-    setTimeout(() => router.push(href), 600);
-  };
 
   return (
     <div
-      onClick={handleClick}
+      onClick={() => router.push(href)}
       className="
         group relative flex flex-col items-center justify-center
         w-40 h-40 rounded-full p-4
         bg-white/5 backdrop-blur border border-white/10
         transition-all duration-300 cursor-pointer
-        hover:scale-110 animate-soft-float
+        hover:scale-110 soft-float
       "
       style={{
         ["--cloud-color" as any]: color,

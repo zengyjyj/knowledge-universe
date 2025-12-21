@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import StarfieldBackground from "@/components/starfieldBackground";
 
 export default function SubCategoryPage() {
   const params = useParams();
@@ -10,6 +11,7 @@ export default function SubCategoryPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-white">
+      <StarfieldBackground />
       <h1 className="text-3xl font-light mb-4">SubCategory Page</h1>
 
       <div className="text-lg text-gray-300">
