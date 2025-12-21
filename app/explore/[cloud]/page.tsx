@@ -1,20 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import StarfieldBackground from "@/components/starfieldBackground";
-import { TREES, TreeNode } from "@/data/cloudsTree/types";
-import { CLOUDS, cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
+import { cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
 import React from "react";
+import { getAllCategoriesMap } from "@/data/queries/categories";
+import { getAllSubCategoriesMap } from "@/data/queries/subCategories";
+import { getAllCloudsMap } from "@/data/queries/cloud";
+import type { Cloud, Category, SubCategory } from "@/data/types/database";
 
 export default function CloudPage() {
   const params = useParams();
-  const cloudKey = params.cloud as keyof typeof TREES;
-  const tree = TREES[cloudKey];
-  const cloudInfo = CLOUDS[cloudKey];
+  const [cloudsMap, setCloudsMap] = useState<Map<string, Cloud>>(new Map());
+  const [categoriesMap, setCategoriesMap] = useState<Map<number, Category[]>>(
+    new Map()
+  );
+  const [subCategoriesMap, setSubCategoriesMap] = useState<
+    Map<number, SubCategory[]>
+  >(new Map());
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
 
-  if (!tree) return <div>云不存在</div>;
+  useEffect(() => {
+    Promise.all([
+      getAllCloudsMap(),
+      getAllCategoriesMap(),
+      getAllSubCategoriesMap(),
+    ]).then(([cMap, catMap, subMap]) => {
+      setCloudsMap(cMap);
+      setCategoriesMap(catMap);
+      setSubCategoriesMap(subMap);
+    });
+  }, []);
+
+  const cloudName = params.cloud as string; //get current cloud
+  const cloudInfo = cloudsMap.get(cloudName);
+  if (!cloudInfo) return <div>云不存在</div>;
+  const categories = categoriesMap.get(cloudInfo.id) ?? [];
+  const subCategories =
+    activeCategoryId !== null
+      ? subCategoriesMap.get(activeCategoryId) ?? []
+      : [];
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -37,23 +65,31 @@ export default function CloudPage() {
           ← 探索模式
         </Link>
 
-        <div className="flex w-full   gap-5 mt-10" style={{ padding: 1 }}>
-          {/* 左侧cloud*/}
-          <div
-            className="flex items-center justify-center"
-            style={{ width: "45%", height: "70vh" }}
-          >
-            <div className="  center">
-              <CloudLargeCard cloudKey={cloudKey} cloudInfo={cloudInfo} />
+        <div className="flex w-full justify-center  ">
+          <div className="flex w-full max-w-6xl gap-8" style={{ padding: 1 }}>
+            {/* 左侧cloud*/}
+            <div className="flex-[3] flex items-center justify-center h-[70vh]">
+              <div className="  center">
+                <CloudLargeCard cloudKey={cloudName} />
+              </div>
             </div>
-          </div>
 
-          {/* 右侧目录  */}
-          <div className="   min-w-0 overflow-hidden" style={{ width: "55%" }}>
-            <div className="border-l border-white/10 pl-6 overflow-auto">
-              {tree.children?.map((child) => (
-                <Tree key={child.id} node={child} />
-              ))}
+            {/* 右侧二/三级分类  */}
+            <div className="flex-[6] min-w-0  flex flex-col">
+              {activeCategoryId === null ? (
+                <CategoryGrid
+                  categories={categories}
+                  cloudInfo={cloudInfo}
+                  onSelect={(id) => setActiveCategoryId(id)}
+                />
+              ) : (
+                <SubCategoryCard
+                  cloud={cloudInfo}
+                  category={categories.find((c) => c.id === activeCategoryId)!}
+                  subCategories={subCategories}
+                  onBack={() => setActiveCategoryId(null)}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -62,9 +98,8 @@ export default function CloudPage() {
   );
 }
 
-function CloudLargeCard({ cloudKey, cloudInfo }: any) {
+function CloudLargeCard({ cloudKey }: { cloudKey: string }) {
   const color = cloudColors[cloudKey];
-
   return (
     <svg
       width={240}
@@ -85,7 +120,7 @@ function CloudLargeCard({ cloudKey, cloudInfo }: any) {
       <circle
         cx="130"
         cy="130"
-        r="120"
+        r="100"
         fill="rgba(178, 166, 166, 0.05)"
         stroke={color}
         strokeWidth="2"
@@ -93,7 +128,7 @@ function CloudLargeCard({ cloudKey, cloudInfo }: any) {
         className="pulse-soft"
       />
 
-      <foreignObject x="30" y="75" width="200" height="180">
+      <foreignObject x="30" y="105" width="200" height="180">
         <div
           className=" flex flex-col items-center justify-center text-center text-white"
           style={{ ["--cloud-color" as any]: color }}
@@ -103,89 +138,88 @@ function CloudLargeCard({ cloudKey, cloudInfo }: any) {
               className: "w-10 h-10",
             })}
           </div>
-
-          <div className="text-2xl font-light">{cloudInfo.title}</div>
-          <div className="text-s text-gray-400 mt-2">
-            {cloudInfo.description}
-          </div>
         </div>
       </foreignObject>
     </svg>
   );
 }
+function CategoryGrid({
+  cloudInfo,
+  categories,
+  onSelect,
+}: {
+  cloudInfo: Cloud;
+  categories: Category[];
+  onSelect: (id: number) => void;
+}) {
+  return (
+    <div className="mt-10">
+      <h3 className="text-4xl font-light text-white">{cloudInfo.title}</h3>
+      <p className="text-2xl text-gray-400 font-light mt-2">
+        | {cloudInfo.description}
+      </p>
 
-type Props = {
-  node: TreeNode;
-  path?: string[];
-  level?: number;
-};
-function Tree({ node, path = [], level = 0 }: Props) {
-  const [expanded, setExpanded] = useState(false);
-  const hasChildren = node.children && node.children.length > 0;
-  const currentPath = [...path, node.title];
+      <div className=" grid grid-cols-2  gap-6 mt-8 auto-rows-fr">
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => onSelect(cat.id)}
+            className="
+            rounded-xl p-6 text-left
+            bg-white/5 border border-white/15
+            transition-all duration-300
+            hover:bg-white/10 hover:scale-[1.01]   "
+          >
+            <div className="text-lg font-light text-white">{cat.title}</div>
+            <div className="text-sm text-gray-400 mt-2">{cat.description}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  // 字体与透明度随层级变化
-  const fontSize = Math.max(12, 25 - level * 2);
-  const opacity = Math.max(0.65, 1 - level * 0.1);
+function SubCategoryCard({
+  category,
+  cloud,
+  subCategories,
+  onBack,
+}: {
+  category: Category;
+  cloud: Cloud;
+  subCategories: SubCategory[];
+  onBack: () => void;
+}) {
+  const router = useRouter();
 
   return (
-    <div
-      className="mt-3"
-      style={{
-        marginLeft: level * 30,
-        fontSize,
-        opacity,
-      }}
-    >
-      <div
-        onClick={() => hasChildren && setExpanded(!expanded)}
-        className="
-          group flex items-center gap-3
-          cursor-pointer
-          transition-all duration-300
-          hover:opacity-100 hover:text-white
-        "
+    <div className="mt-10">
+      <button
+        onClick={onBack}
+        className="mt-2 text-gray-400 hover:text-white text-sm"
       >
-        {/* 节点圆点 */}
-        <span
-          className={`
-            w-2.5 h-2.5 rounded-full
-            transition-all duration-300
-            ${
-              hasChildren
-                ? expanded
-                  ? "bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
-                  : "border border-white/40"
-                : "bg-white/50 shadow-[0_0_6px_rgba(255,255,255,0.5)]"
-            }
-          `}
-        />
+        ← 返回 {cloud.title}
+      </button>
 
-        {/* 文本 */}
-        {hasChildren ? (
-          <span className="select-none">{node.title}</span>
-        ) : (
-          <Link
-            href={{
-              pathname: `/node/${node.id}`,
-              query: { path: JSON.stringify(currentPath) },
-            }}
-            className="transition-colors hover:text-blue-300"
+      <h3 className="text-4xl font-light mt-3">{category.title}</h3>
+
+      <div className="grid grid-cols-2 gap-6 mt-4">
+        {subCategories.map((sub) => (
+          <button
+            key={sub.id}
+            onClick={() => router.push(`/explore/${cloud.name}/${sub.name}`)}
+            className="
+              rounded-xl p-6 text-left
+              bg-white/5 border border-white/15
+              transition-all duration-300
+              hover:bg-white/10 hover:scale-[1.02]
+            "
           >
-            {node.title}
-          </Link>
-        )}
-      </div>
-
-      {expanded &&
-        node.children?.map((child) => (
-          <Tree
-            key={child.id}
-            node={child}
-            path={currentPath}
-            level={level + 1}
-          />
+            <div className="text-lg font-light text-white">{sub.title}</div>
+            <div className="text-sm text-gray-400 mt-2">{sub.description}</div>
+          </button>
         ))}
+      </div>
     </div>
   );
 }

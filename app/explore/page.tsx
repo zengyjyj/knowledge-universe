@@ -92,7 +92,6 @@ export default function ExplorePage() {
             {/* 云按钮 */}
             <div className="flex justify-center gap-4 mb-8">
               {clouds.map((cloud) => {
-                console.log("cloud from db:", cloud);
                 return (
                   <CloudButton
                     key={cloud.name}
