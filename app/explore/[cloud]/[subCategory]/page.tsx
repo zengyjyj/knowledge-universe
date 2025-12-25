@@ -95,19 +95,26 @@ export default function SubCategoryPage() {
 
           {/* nodes */}
           <div className="grid grid-cols-1 gap-4 mt-14">
-            <div className="flex items-center   ">
+            <div className="flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-blue-400" />
               <h3 className="text-lg font-light text-blue-400 tracking-wide">
                 扩展分支
               </h3>
             </div>
+
             {nodes.map((node) => (
               <NodeButton key={node.id} node={node} />
             ))}
           </div>
 
           {/* expansion placeholder */}
-          <div className="grid grid-cols-2 gap-6 mt-16">
+          <div className="flex items-center gap-3 mt-16 ">
+            <span className="w-2 h-2 rounded-full bg-gray-500" />
+            <h3 className="text-sm   text-gray-500 tracking-wide">
+              下一步行动
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 gap-6 mt-4">
             {/* 社区 */}
             <Community />
             {/* 即问即答 */}
@@ -132,7 +139,7 @@ function NodeButton({ node }: { node: Node }) {
         "
     >
       <div className="text-lg text-white font-light">{node.title}</div>
-      <div className="text-sm text-gray-500 mt-1">| {node.definition}</div>
+      <div className="text-sm text-gray-500 mt-1"> {node.definition}</div>
     </button>
   );
 }

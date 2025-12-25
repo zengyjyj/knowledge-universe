@@ -155,11 +155,11 @@ function CloudCard({ keyName, cloud, href, color }: any) {
         {cloud.icon}
       </div>
 
-      <h2 className="relative z-10 text-lg font-light group-hover:text-white text-center">
+      <h2 className="relative z-10 text-lg   group-hover:text-white text-center">
         {cloud.title}
       </h2>
 
-      <p className="relative z-10 text-gray-400 text-xs text-center mt-1 leading-relaxed">
+      <p className="relative z-10 font-light text-gray-400 text-xs text-center mt-1 leading-relaxed">
         {cloud.description}
       </p>
     </div>

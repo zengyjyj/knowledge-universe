@@ -9,6 +9,7 @@ import { Cloudy } from "lucide-react";
 import { Community } from "@/components/expansion/Community";
 import { QuickQA } from "@/components/expansion/QuickQA";
 import { Goal } from "@/components/expansion/Goal";
+import { FavoriteNodeButton } from "@/components/favorite/FavoriteNodeButton";
 
 export default function NodePage() {
   const params = useParams();
@@ -56,6 +57,7 @@ export default function NodePage() {
   return (
     <div className="relative w-full overflow-hidden">
       <StarfieldBackground />
+      <FavoriteNodeButton nodeId={node.id} />
 
       <div className="relative z-10 text-white w-screen px-20 py-10">
         {/* path */}
@@ -63,21 +65,19 @@ export default function NodePage() {
           {
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Cloudy className=" w-4 h-4 group-hover:scale-110" />
-              <LinkToCloud cName={nodePath.cName} cTitle={nodePath.cTitle} />
+              <BackToCloud cTitle={nodePath.cTitle} />
 
               <span className="opacity-40">{">>"}</span>
-              <LinkToCategory
+              <BackToCategory
                 cName={nodePath.cName}
-                catName={nodePath.subName}
                 catTitle={nodePath.catTitle}
               />
 
               <span className="opacity-40">{">>"}</span>
-              <LinkToCategory
+              <BackToSubCategory
                 cName={nodePath.cName}
-                catName={nodePath.subName}
-                catTitle={nodePath.subTitle}
-                // TODO :LinkToSubCategory
+                subName={nodePath.subName}
+                subTitle={nodePath.subTitle}
               />
             </div>
           }
@@ -120,9 +120,7 @@ export default function NodePage() {
 
           <div className="flex items-center gap-3 mt-10 ">
             <span className="w-2 h-2 rounded-full bg-gray-500" />
-            <h3 className="text-l font-light  text-gray-500 tracking-wide">
-              下一步行动
-            </h3>
+            <h3 className="text-sm  text-gray-500 tracking-wide">下一步行动</h3>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-3">
@@ -132,9 +130,8 @@ export default function NodePage() {
             <QuickQA />
           </div>
 
-          <BackToSub
+          <SearchInSub
             cName={nodePath.cName}
-            catName={nodePath.catName}
             subName={nodePath.subName}
             subTitle={nodePath.subTitle}
           />
@@ -151,20 +148,20 @@ function NodeDetail({ title, content }: { title: string; content: string }) {
             rounded-xl p-6 text-left
             bg-white/5  border border-transparent
             transition-all duration-300
-            hover:bg-blue-400/10  hover:border-blue-400/10 hover:scale-[1.01]
+             
         "
     >
       <div className="text-lg text-white font-light">{title}</div>
-      <div className="text-sm text-gray-500 mt-1">| {content}</div>
+      <div className="text-sm text-gray-500 mt-1"> {content}</div>
     </div>
   );
 }
 
-function LinkToCloud({ cName, cTitle }: { cName: string; cTitle: string }) {
+function BackToCloud({ cTitle }: { cTitle: string }) {
   const router = useRouter();
   return (
     <span
-      onClick={() => router.push(`/explore/${cName}`)}
+      onClick={() => router.push(`/explore`)}
       className="cursor-pointer hover:text-white transition"
     >
       {cTitle}
@@ -172,19 +169,17 @@ function LinkToCloud({ cName, cTitle }: { cName: string; cTitle: string }) {
   );
 }
 
-function LinkToCategory({
+function BackToCategory({
   cName,
   catTitle,
-  catName,
 }: {
   cName: string;
   catTitle: string;
-  catName: string;
 }) {
   const router = useRouter();
   return (
     <span
-      onClick={() => router.push(`/explore/${cName}/${catName}`)}
+      onClick={() => router.push(`/explore/${cName}`)}
       className="cursor-pointer hover:text-white transition"
     >
       {catTitle}
@@ -192,21 +187,19 @@ function LinkToCategory({
   );
 }
 
-function LinkToSubCategory({
+function BackToSubCategory({
   cName,
-  catName,
   subName,
   subTitle,
 }: {
   cName: string;
-  catName: string;
   subName: string;
   subTitle: string;
 }) {
   const router = useRouter();
   return (
     <span
-      onClick={() => router.push(`/explore/${cName}/${catName}/${subName}`)}
+      onClick={() => router.push(`/explore/${cName}/${subName}`)}
       className="cursor-pointer hover:text-white transition"
     >
       {subTitle}
@@ -214,21 +207,19 @@ function LinkToSubCategory({
   );
 }
 
-function BackToSub({
+function SearchInSub({
   cName,
-  catName,
   subName,
   subTitle,
 }: {
   cName: string;
-  catName: string;
   subName: string;
   subTitle: string;
 }) {
   const router = useRouter();
   return (
     <button
-      onClick={() => router.push(`/explore/${cName}/${catName}/${subName}`)}
+      onClick={() => router.push(`/explore/${cName}/${subName}`)}
       className="
         w-full mt-5
         rounded-3xl  py-2  flex   justify-center

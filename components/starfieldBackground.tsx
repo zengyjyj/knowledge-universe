@@ -32,6 +32,7 @@ export default function StarfieldBackground() {
             animation: `shooting-star 5s ease-out ${
               Math.random() * 6
             }s infinite`,
+            animationDelay: `-${Math.random() * 5}s`,
           }}
         />
       ))}
