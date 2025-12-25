@@ -31,3 +31,12 @@ export type Node = {
   definition: string;
   detail: string;
 };
+
+export type NodePath = {
+  subName: string;
+  subTitle: string;
+  catName: string;
+  catTitle: string;
+  cName: string;
+  cTitle: string;
+};

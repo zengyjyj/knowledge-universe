@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
-import { NODES } from "@/data/nodes/types";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { useRouter } from "next/navigation";
 import { LayoutGrid, Layers } from "lucide-react";
@@ -108,15 +107,7 @@ export default function ExplorePage() {
 
             {/* node 列表 */}
             <div className="flex flex-wrap gap-6">
-              {Object.values(NODES)
-                .filter((n) => n.cloud === currentCloud)
-                .map((node) => (
-                  <NodeCard
-                    key={node.id}
-                    node={node}
-                    color={cloudColors[node.cloud]}
-                  />
-                ))}
+              <p>TODO:</p>
             </div>
           </div>
         )}
