@@ -7,95 +7,108 @@ import { useParams } from "next/navigation";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { cloudIcons, cloudColors } from "@/data/clouds";
 import React from "react";
-import { getAllCategoriesMap } from "@/data/queries/categories";
+import { getCategoriesByCloudName } from "@/data/queries/categories";
 import { getAllSubCategoriesMap } from "@/data/queries/subCategories";
-import { getAllCloudsMap } from "@/data/queries/cloud";
+import { getCloudByName } from "@/data/queries/cloud";
 import type { Cloud, Category, SubCategory } from "@/data/types/database";
 
 export default function CloudPage() {
   const params = useParams();
-  const [cloudsMap, setCloudsMap] = useState<Map<string, Cloud>>(new Map());
-  const [categoriesMap, setCategoriesMap] = useState<Map<number, Category[]>>(
-    new Map()
-  );
+  const cloudName = params.cloud as string; //get current cloud
+
+  const [cloudInfo, setCloud] = useState<Cloud | null>(null);
+  const [categories, setCategories] = useState<Category[] | null>(null);
   const [subCategoriesMap, setSubCategoriesMap] = useState<
     Map<number, SubCategory[]>
   >(new Map());
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const subCategories =
+    activeCategoryId !== null
+      ? subCategoriesMap.get(activeCategoryId) ?? []
+      : [];
 
   useEffect(() => {
-    Promise.all([
-      getAllCloudsMap(),
-      getAllCategoriesMap(),
-      getAllSubCategoriesMap(),
-    ]).then(([cMap, catMap, subMap]) => {
-      setCloudsMap(cMap);
-      setCategoriesMap(catMap);
-      setSubCategoriesMap(subMap);
-      setLoading(false);
-    });
-  }, []);
+    let cancelled = false;
 
-  if (!loading) {
-    const cloudName = params.cloud as string; //get current cloud
-    const cloudInfo = cloudsMap.get(cloudName);
-    if (!cloudInfo) return <div>云不存在</div>;
-    const categories = categoriesMap.get(cloudInfo.id) ?? [];
-    const subCategories =
-      activeCategoryId !== null
-        ? subCategoriesMap.get(activeCategoryId) ?? []
-        : [];
+    async function run() {
+      try {
+        setLoading(true);
+        setError(null);
+        const [c, cat, subMap] = await Promise.all([
+          getCloudByName(cloudName),
+          getCategoriesByCloudName(cloudName),
+          getAllSubCategoriesMap(),
+        ]);
 
-    return (
-      <div className="relative w-full overflow-hidden">
-        <div className="bg-radial-space" />
-        <StarfieldBackground />
+        if (cancelled) return;
+        setCloud(c);
+        setCategories(cat);
+        setSubCategoriesMap(subMap);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Unknown error");
+      } finally {
+        if (cancelled) return;
+        setLoading(false);
+      }
+    }
+    if (cloudName) run();
 
-        <div
-          className="relative z-10 text-white w-screen px-20 py-10"
-          style={{ padding: 30 }}
-        >
-          {/* 返回键 */}
-          <BackButton
-            cloud={cloudInfo}
-            activeCategoryId={activeCategoryId}
-            onBackToCloud={() => setActiveCategoryId(null)}
-          />
+    return () => {
+      cancelled = true;
+    };
+  }, [cloudName]);
 
-          <div className="flex w-full justify-center  ">
-            <div className="flex w-full max-w-6xl gap-8" style={{ padding: 1 }}>
-              {/* 左侧cloud*/}
-              <div className="flex-[3.5] flex items-center justify-center  ">
-                <div className="  center">
-                  <CloudLargeCard cloudKey={cloudName} />
-                </div>
+  if (loading || !cloudInfo || !categories) return null;
+
+  return (
+    <div className="relative w-full overflow-hidden">
+      <div className="bg-radial-space" />
+      <StarfieldBackground />
+
+      <div
+        className="relative z-10 text-white w-screen px-20 py-10"
+        style={{ padding: 30 }}
+      >
+        {/* 返回键 */}
+        <BackButton
+          cloud={cloudInfo}
+          activeCategoryId={activeCategoryId}
+          onBackToCloud={() => setActiveCategoryId(null)}
+        />
+
+        <div className="flex w-full justify-center  ">
+          <div className="flex w-full max-w-6xl gap-8" style={{ padding: 1 }}>
+            {/* 左侧cloud*/}
+            <div className="flex-[3.5] flex items-center justify-center  ">
+              <div className="  center">
+                <CloudLargeCard cloudKey={cloudName} />
               </div>
+            </div>
 
-              {/* 右侧二/三级分类  */}
-              <div className="flex-[6] min-w-0  flex flex-col">
-                {activeCategoryId === null ? (
-                  <CategoryGrid
-                    categories={categories}
-                    cloudInfo={cloudInfo}
-                    onSelect={(id) => setActiveCategoryId(id)}
-                  />
-                ) : (
-                  <SubCategoryCard
-                    cloud={cloudInfo}
-                    category={
-                      categories.find((c) => c.id === activeCategoryId)!
-                    }
-                    subCategories={subCategories}
-                  />
-                )}
-              </div>
+            {/* 右侧二/三级分类  */}
+            <div className="flex-[6] min-w-0  flex flex-col">
+              {activeCategoryId === null ? (
+                <CategoryGrid
+                  categories={categories}
+                  cloudInfo={cloudInfo}
+                  onSelect={(id) => setActiveCategoryId(id)}
+                />
+              ) : (
+                <SubCategoryCard
+                  cloud={cloudInfo}
+                  category={categories.find((c) => c.id === activeCategoryId)!}
+                  subCategories={subCategories}
+                />
+              )}
             </div>
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 function BackButton({

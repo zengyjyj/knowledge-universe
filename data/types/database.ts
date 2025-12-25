@@ -21,4 +21,13 @@ export type SubCategory = {
   title: string;
   description: string;
   order_index: number;
+  intro: string;
+};
+
+export type Node = {
+  id: number;
+  subCategory_id: number;
+  title: string;
+  definition: string;
+  detail: string;
 };

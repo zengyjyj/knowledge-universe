@@ -8,14 +8,14 @@ export async function getAllClouds(): Promise<Cloud[]> {
   return data as Cloud[];
 }
 
-export async function getAllCloudsMap(): Promise<Map<string, Cloud>> {
-  const { data, error } = await supabase.from("clouds").select("*").order("id");
+export async function getCloudByName(cloudName: string): Promise<Cloud> {
+  const { data, error } = await supabase
+    .from("clouds")
+    .select("*")
+    .eq("name", cloudName)
+    .single();
 
   if (error) throw error;
-  const map = new Map<string, Cloud>();
-  for (const cloud of data as Cloud[]) {
-    map.set(cloud.name, cloud);
-  }
 
-  return map;
+  return data as Cloud;
 }

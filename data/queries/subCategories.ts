@@ -23,3 +23,17 @@ export async function getAllSubCategoriesMap(): Promise<
 
   return map;
 }
+
+export async function getSubCategoryByName(
+  subName: string
+): Promise<SubCategory> {
+  const { data, error } = await supabase
+    .from("subcategories")
+    .select("*")
+    .eq("name", subName)
+    .single();
+
+  if (error) throw error;
+
+  return data as SubCategory;
+}
