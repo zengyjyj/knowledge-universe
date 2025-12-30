@@ -1,25 +1,23 @@
+import { getCurrentProfile } from "@/data/queries/profilesServer";
 import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/data/queries/profiles";
 
 export default async function UserCenterPage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  //TODO: error 404
+  const { username } = await params;
+
   const profile = await getCurrentProfile();
-
+  console.log("app/user/[username]", profile);
   if (!profile) {
-    redirect("/app/user");
+    console.log("app/user/[username] profile null should return to /user ");
+    redirect("/user");
   }
 
-  if (profile.username !== params.username) {
-    redirect(`/app/user/${profile.username}`);
+  if (profile.username !== username) {
+    redirect(`/user/${profile.username}`);
   }
 
-  return (
-    <div>
-      <h1>Welcome {profile.username}</h1>
-    </div>
-  );
+  return <div>Welcome {profile.username}</div>;
 }

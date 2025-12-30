@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/browser";
 import { Category } from "../types/database";
 
 export async function getCategoriesByCloudName(

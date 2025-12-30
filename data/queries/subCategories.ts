@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/browser";
 import { SubCategory } from "../types/database";
 
 export async function getAllSubCategoriesMap(): Promise<

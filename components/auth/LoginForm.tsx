@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, getCurrentProfile } from "@/data/queries/profiles";
+import { login } from "@/data/queries/profilesBrowser";
 import { authErrorMap } from "./authErrorMap";
 import { AuthErrorCode } from "@/data/authErrors";
 import { Mail, Lock } from "lucide-react";
@@ -33,12 +33,9 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
 
     try {
       await login({ email, password });
-      const profile = await getCurrentProfile();
-      if (!profile) {
-        throw new Error(AuthErrorCode.UNKNOWN_ERROR);
-      }
       onSuccess();
-      router.replace(`/app/user/${profile.username}`);
+      router.refresh();
+      console.log("component/auth/loginForm login succes");
     } catch (e: any) {
       const code = e.message ?? AuthErrorCode.UNKNOWN_ERROR;
       setError(authErrorMap[code] ?? authErrorMap.UNKNOWN_ERROR);

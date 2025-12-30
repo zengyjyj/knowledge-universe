@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signUp, getCurrentProfile } from "@/data/queries/profiles";
+import { signUp } from "@/data/queries/profilesBrowser";
 import { authErrorMap } from "./authErrorMap";
 import { AuthErrorCode } from "@/data/authErrors";
-import { Mail, Lock, UserPen, ShieldCheck } from "lucide-react";
+import { Mail, Lock, ShieldCheck } from "lucide-react";
 
 const inputBase =
   "w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-white placeholder-white/40 outline-none transition";
@@ -42,7 +41,6 @@ export default function SignUpForm({ onSuccess }: { onSuccess: () => void }) {
 
     try {
       await signUp({ email, password });
-
       setSuccess(true);
     } catch (e: any) {
       const code = e.message ?? AuthErrorCode.UNKNOWN_ERROR;

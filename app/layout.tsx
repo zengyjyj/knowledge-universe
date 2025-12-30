@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import "./globals.css";
+import { getCurrentProfile } from "@/data/queries/profilesServer";
 
 export const metadata = {
   title: "序光",
@@ -14,11 +15,16 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode /**任何 React 能渲染的东西 */;
 }) {
+  const profile = await getCurrentProfile();
+
+  const userHref = profile ? `/user/${profile.username}` : "/user";
+  console.log("app/layout: profile", profile, "userHref:", userHref);
+
   return (
     <html lang="zh">
       <body>
@@ -36,7 +42,7 @@ export default function RootLayout({
               <img src="/ask.png" alt="问答" style={styles.askingImage} />
             </Link>
 
-            <Link href="/user">
+            <Link href={userHref}>
               <img
                 src="/user.png"
                 alt="user space"
