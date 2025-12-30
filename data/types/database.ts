@@ -40,3 +40,9 @@ export type NodePath = {
   cName: string;
   cTitle: string;
 };
+
+export type Profile = {
+  user_id: number;
+  username: string;
+  mail: string;
+};
