@@ -1,5 +1,4 @@
 import { getCurrentProfile } from "@/data/queries/profilesServer";
-import { redirect } from "next/navigation";
 
 export default async function UserLayout({
   children,

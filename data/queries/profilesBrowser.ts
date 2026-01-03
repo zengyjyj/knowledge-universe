@@ -36,5 +36,6 @@ export async function login({
   if (error) {
     throw new Error(AuthErrorCode.INVALID_CREDENTIALS);
   }
-  return data.user;
+
+  return data;
 }

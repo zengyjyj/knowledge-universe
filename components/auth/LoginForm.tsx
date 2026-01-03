@@ -32,11 +32,33 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     }
 
     try {
-      await login({ email, password });
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include", // important so Set-Cookie is accepted
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg = json?.error ?? "登录失败";
+        const mapped =
+          authErrorMap[msg] ?? authErrorMap[AuthErrorCode.UNKNOWN_ERROR] ?? msg;
+        setError(mapped);
+        console.warn("login error", msg, json);
+        setLoading(false);
+        return;
+      }
+
+      // success
+      console.log("Login successful:", json?.user ?? null);
       onSuccess();
-      router.refresh();
-      console.log("component/auth/loginForm login succes");
+      window.location.reload(); //router.refresh();
     } catch (e: any) {
+      console.log("component/auth/loginForm login failed", e);
       const code = e.message ?? AuthErrorCode.UNKNOWN_ERROR;
       setError(authErrorMap[code] ?? authErrorMap.UNKNOWN_ERROR);
     } finally {
