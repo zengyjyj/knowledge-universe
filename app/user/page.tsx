@@ -7,7 +7,6 @@ export default async function UserPage() {
 
   try {
     profile = await getCurrentProfile();
-    console.log("app/user/page try getCurrentProfile:", profile);
   } catch {
     profile = null;
   }

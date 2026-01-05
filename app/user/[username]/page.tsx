@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import { getCurrentProfile } from "@/data/queries/profilesServer";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -10,14 +9,10 @@ import { LayoutDashboard, Bookmark, Target, Settings } from "lucide-react";
 
 /**
  * 左侧是竖着的目录页：
- * 个人信息：
- *    开头有个居中的“欢迎回来！“，
- *    标题下面是卡片（包含头像icon，username，mail，等级）
- *    卡片下面也有几个小卡片：学习天数，已完成目标，已收藏内容和已学习时长
- * 知识收藏：TODO
- * 目标计划：TODO
- * 账户管理：TODO（退出登陆）
- *    个人资料的编辑：更换username，更换邮箱，更换密码，退出账户，删除账户
+ * 个人信息
+ * 知识收藏
+ * 目标计划
+ * 账户管理
  *
  */
 

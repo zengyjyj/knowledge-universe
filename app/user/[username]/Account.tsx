@@ -13,16 +13,12 @@ export default function Account({ username }: { username: string }) {
         <UsernameForm username={username} />
       </section>
 
-      {/* 退出登录 */}
-      <section className="relative rounded-3xl p-6  ">
-        <form action={logoutAction} className="absolute bottom-6 right-6">
-          <button
-            type="submit"
-            className="rounded-xl px-4 py-2 bg-red-600/80 hover:bg-red-600 transition"
-          >
-            退出登录
-          </button>
-        </form>
+      {/* 退出登录/删除账号 */}
+      <section className="rounded-3xl p-5  ">
+        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto  ">
+          <AccountDeleteForm />
+          <LogoutForm />
+        </div>
       </section>
     </div>
   );
@@ -34,11 +30,10 @@ function UsernameForm({ username }: { username: string }) {
   return (
     <form
       action={async (formData) => {
-        try {
-          setError(null);
-          await updateUsernameAction(formData, username);
-        } catch (e: any) {
-          setError(e.message);
+        setError(null);
+        const res = await updateUsernameAction(formData, username);
+        if (res?.error) {
+          setError(res.error);
         }
       }}
       className="space-y-2 max-w-md"
@@ -59,6 +54,33 @@ function UsernameForm({ username }: { username: string }) {
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
+    </form>
+  );
+}
+
+function LogoutForm() {
+  return (
+    <form className="flex justify-center" action={logoutAction}>
+      <button
+        type="submit"
+        className="rounded-xl px-6 py-2 bg-orange-600/80 hover:bg-orange-600 transition"
+      >
+        退出登录
+      </button>
+    </form>
+  );
+}
+
+function AccountDeleteForm() {
+  return (
+    // TODO :deleteAccountAction
+    <form className="flex justify-center">
+      <button
+        type="submit"
+        className="rounded-xl px-6 py-2 bg-gray-600/80 hover:bg-gray-600 transition"
+      >
+        删除账号
+      </button>
     </form>
   );
 }

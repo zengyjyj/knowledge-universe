@@ -13,7 +13,6 @@ export default async function UserLayout({
   const profile = await getCurrentProfile();
 
   if (!profile) {
-    console.log("app/user/[username]/layout : profile null");
     redirect("/user");
   }
 

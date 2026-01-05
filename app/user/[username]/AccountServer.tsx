@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { updateUsernameQuery } from "@/data/queries/profilesServer";
-import { logout } from "@/data/queries/profilesBrowser";
+import { logoutQuery } from "@/data/queries/profilesServer";
 
 export async function updateUsernameAction(
   formData: FormData,
@@ -12,11 +12,11 @@ export async function updateUsernameAction(
   const newUsername = formData.get("newUsername")?.toString();
 
   if (!newUsername) {
-    throw new Error("用户名不能为空");
+    return { error: "用户名不能为空" };
   }
 
   if (newUsername == oldUsername) {
-    throw new Error("新用户名不能与旧用户名相同");
+    return { error: "新用户名不能与旧用户名相同" };
   }
   await updateUsernameQuery(newUsername);
 
@@ -25,6 +25,12 @@ export async function updateUsernameAction(
 }
 
 export async function logoutAction() {
-  await logout();
+  console.log("Logging out..............");
+  await logoutQuery();
+
+  // 清空所有依赖 auth 的缓存
+  revalidatePath("/", "layout");
+  revalidatePath("/user");
+
   redirect("/user");
 }

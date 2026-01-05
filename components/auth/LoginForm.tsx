@@ -54,7 +54,6 @@ export default function LoginForm({ onSuccess }: { onSuccess: () => void }) {
       }
 
       // success
-      console.log("Login successful:", json?.user ?? null);
       onSuccess();
       window.location.reload(); //router.refresh();
     } catch (e: any) {

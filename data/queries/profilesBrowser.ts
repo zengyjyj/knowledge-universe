@@ -39,7 +39,3 @@ export async function login({
 
   return data;
 }
-
-export async function logout() {
-  await supabase.auth.signOut();
-}
