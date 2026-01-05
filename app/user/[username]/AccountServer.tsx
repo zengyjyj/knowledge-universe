@@ -9,7 +9,7 @@ export async function updateUsernameAction(
   formData: FormData,
   oldUsername: string
 ) {
-  const newUsername = formData.get("newUsername")?.toString();
+  const newUsername = formData.get("input")?.toString();
 
   if (!newUsername) {
     return { error: "用户名不能为空" };
