@@ -3,6 +3,7 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { Profile } from "../types/database";
 
 /**
  * Module-level memo to avoid repeated Supabase calls in dev/HMR loops.
@@ -27,7 +28,7 @@ export const getCurrentProfile = cache(async function getCurrentProfile() {
   if (MEMO.authCookieValue === authCookie && Date.now() < MEMO.expiresAt) {
     // minimal log for visibility only
     console.debug(`[${ts}] getCurrentProfile: returning memoized profile`);
-    return MEMO.profile;
+    return MEMO.profile as Profile;
   }
 
   const supabase = await createSupabaseServerClient();
@@ -71,7 +72,7 @@ export const getCurrentProfile = cache(async function getCurrentProfile() {
     console.debug(
       `[${ts}] getCurrentProfile: fetched profile and memoized (ttl ${MEMO_TTL_MS}ms)`
     );
-    return profile;
+    return profile as Profile;
   } catch (err) {
     MEMO = {
       profile: null,
@@ -82,35 +83,38 @@ export const getCurrentProfile = cache(async function getCurrentProfile() {
     return null;
   }
 });
-// import { cache } from "react";
-// import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-// /**
-//  * 获取当前登录用户的 profile
-//  * - 同一个请求内：只会真正调用 Supabase 一次
-//  * - layout / page / 其他 server component 复用结果
-//  */
-// export const getCurrentProfile = cache(async () => {
-//   const supabase = await createSupabaseServerClient();
+export async function updateUsernameQuery(newUsername: string) {
+  const supabase = await createSupabaseServerClient();
 
-//   const {
-//     data: { user },
-//     error: authError,
-//   } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-//   if (authError || !user) {
-//     return null;
-//   }
+  if (!user) {
+    throw new Error("未登录");
+  }
 
-//   const { data: profile, error: profileError } = await supabase
-//     .from("profiles")
-//     .select("*")
-//     .eq("user_id", user.id)
-//     .single();
+  // 1. 检查是否已存在
+  const { data: existing } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("username", newUsername)
+    .maybeSingle();
 
-//   if (profileError) {
-//     return null;
-//   }
+  if (existing) {
+    throw new Error("用户名已被占用");
+  }
 
-//   return profile;
-// });
+  // 2. 更新 profiles
+  const { error } = await supabase
+    .from("profiles")
+    .update({ username: newUsername })
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error("更新失败");
+  }
+
+  return newUsername;
+}

@@ -27,7 +27,10 @@ export default function ExplorePage() {
 
       <StarfieldBackground />
 
-      <div className="relative " style={{ padding: 40 }}>
+      <div
+        className="relative w-full  overflow-hidden "
+        style={{ padding: 40 }}
+      >
         {/* 标题 + 模式切换按钮 */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-light">探索模式</h2>
@@ -54,7 +57,7 @@ export default function ExplorePage() {
 
         {/* 结构模式（五大云） */}
         {mode === "structure" && (
-          <div className="flex flex-col justify-center items-center w-full h-[80vh]">
+          <div className="flex flex-col justify-center items-center  mt-20  ">
             {/* 第一排：三个云 */}
             <div className="flex justify-center gap-[8vw]">
               {clouds.slice(0, 3).map((cloud) => (
@@ -67,8 +70,6 @@ export default function ExplorePage() {
                 />
               ))}
             </div>
-
-            <div className="h-[4vh]" />
 
             {/* 第二排：两个云 */}
             <div className="flex justify-center gap-[10vw]">
@@ -87,7 +88,7 @@ export default function ExplorePage() {
 
         {/* 内容模式（所有节点列表）  */}
         {mode === "content" && (
-          <div className="mt-10">
+          <div className="mt-10 ">
             {/* 云按钮 */}
             <div className="flex justify-center gap-4 mb-8">
               {clouds.map((cloud) => {

@@ -82,7 +82,7 @@ export default async function UserCenterPage({
           {mode === "overview" && <Overview profile={profile} />}
           {mode === "favorites" && <Favorites />}
           {mode === "goal" && <Goal />}
-          {mode === "account" && <Account />}
+          {mode === "account" && <Account username={profile.username} />}
         </div>
       </main>
     </div>
