@@ -1,9 +1,11 @@
 "use server";
-
+//path: app/user/[username]/ServerActions.tsx
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { updateUsernameQuery } from "@/data/queries/profilesServer";
 import { logoutQuery } from "@/data/queries/profilesServer";
+import { getFavoriteNodeByUserQuery } from "@/data/queries/favoriteNodeServer";
+import type { Node } from "@/data/types/database";
 
 export async function updateUsernameAction(
   formData: FormData,
@@ -33,4 +35,8 @@ export async function logoutAction() {
   revalidatePath("/user");
 
   redirect("/user");
+}
+
+export async function getFavoriteNodesAction(): Promise<Node[]> {
+  return await getFavoriteNodeByUserQuery();
 }

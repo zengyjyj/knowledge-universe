@@ -9,13 +9,16 @@ import { Cloudy } from "lucide-react";
 import { Community } from "@/components/expansion/Community";
 import { QuickQA } from "@/components/expansion/QuickQA";
 import { Goal } from "@/components/expansion/Goal";
-import { FavoriteNodeButton } from "@/components/favorite/FavoriteNodeButton";
+import { Heart } from "lucide-react";
+import { getNodeState, toggleFavoriteNodeAction } from "./nodeActions";
 
 export default function NodePage() {
   const params = useParams();
   const nodeIdStr = params.nodeId as string;
   const nodeId = Number(nodeIdStr);
   const [loading, setLoading] = useState(true);
+  const [favorited, setFavorited] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [node, setNode] = useState<Node | null>(null);
   const [nodePath, setNodePath] = useState<NodePath | null>(null);
@@ -24,11 +27,14 @@ export default function NodePage() {
   useEffect(() => {
     async function run() {
       try {
-        const { node: nodeInfo, nodePath: nodePath } = await getNodeDetailById(
-          nodeId
-        );
-        setNode(nodeInfo);
-        setNodePath(nodePath);
+        getNodeDetailById(nodeId).then((res) => {
+          setNode(res.node);
+          setNodePath(res.nodePath);
+        });
+        getNodeState(nodeId).then((res) => {
+          setLoggedIn(res.loggedIn);
+          setFavorited(res.favorited);
+        });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Unknown error");
       } finally {
@@ -36,7 +42,7 @@ export default function NodePage() {
       }
     }
     if (nodeId) run();
-  }, []);
+  }, [nodeId, favorited, loggedIn]);
 
   if (error || loading || !node || !nodePath) return null;
 
@@ -57,7 +63,12 @@ export default function NodePage() {
   return (
     <div className="relative w-full overflow-hidden">
       <StarfieldBackground />
-      <FavoriteNodeButton nodeId={node.id} />
+      <FavoriteNodeButton
+        nodeId={node.id}
+        favorited={favorited}
+        loggedIn={loggedIn}
+        onChangeFavorited={setFavorited}
+      />
 
       <div className="relative z-10 text-white w-screen px-20 py-10">
         {/* path */}
@@ -230,6 +241,54 @@ function SearchInSub({
       <span className="text-sm font-light text-center text-gray-400">
         ← 继续看看其他 {subTitle} 知识
       </span>
+    </button>
+  );
+}
+
+export function FavoriteNodeButton({
+  nodeId,
+  favorited,
+  loggedIn,
+  onChangeFavorited,
+}: {
+  nodeId: number;
+  favorited: boolean;
+  loggedIn: boolean;
+  onChangeFavorited: (v: boolean) => void;
+}) {
+  async function toggleLike() {
+    if (!loggedIn) {
+      const router = useRouter();
+      router.push("/user");
+      return;
+    }
+
+    const nextFavorited = await toggleFavoriteNodeAction(nodeId, favorited);
+    onChangeFavorited(nextFavorited);
+  }
+
+  return (
+    <button
+      onClick={toggleLike}
+      className="
+        fixed bottom-6 right-6 z-50
+        w-14 h-14 rounded-full
+        flex items-center justify-center
+        backdrop-blur
+        bg-white/10 border border-transparent
+        shadow-lg
+        transition-all duration-300  
+        hover:scale-110
+        hover:bg-white/20
+      "
+      aria-label="收藏 / 点赞该知识节点"
+    >
+      <Heart
+        className={`
+          w-6 h-6 transition-all duration-300
+          ${favorited ? "fill-red-500 text-red-500" : "text-gray-300"}
+        `}
+      />
     </button>
   );
 }

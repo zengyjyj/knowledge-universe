@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { logoutAction, updateUsernameAction } from "./AccountServer";
+import { logoutAction, updateUsernameAction } from "./ServerActions";
 
 export default function Account({ username }: { username: string }) {
   return (

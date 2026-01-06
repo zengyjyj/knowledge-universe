@@ -17,7 +17,8 @@ export default async function UserPage() {
   }
 
   //此file是Server Component 不能给 Client Component 传函数
-  // ❌ return <AuthModal open={true} onClose={() => {}} />;
+  // 所以 ❌ return <AuthModal open={true} onClose={() => {}} />;
+  // 因此需要一个authModalClient.tsx
   console.log("app/user/page -> login/signup");
   return <AuthModalClient />;
 }
