@@ -22,14 +22,6 @@ body {
   opacity: 0;
 }
 
-.soft-float {
-  animation: soft-float 4s ease-in-out infinite;
-}
-
-.pulse-soft {
-  animation: pulse-soft 4s infinite ease-in-out;
-}
-
 /* 星星闪烁 */
 .animate-star {
   animation: star-twinkle 3s ease-in-out infinite;
@@ -56,6 +48,81 @@ body {
     ),
     linear-gradient(to bottom, rgba(148, 163, 184, 0.09) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+
+/*渐入按钮 */
+.tech-btn {
+  position: relative;
+  overflow: hidden;
+  transition: color 300ms ease, border-color 300ms ease, box-shadow 400ms ease,
+    transform 300ms ease;
+}
+.tech-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: radial-gradient(
+    circle at center,
+    var(--glow-color),
+    transparent 90%
+  );
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+.tech-btn:hover::before {
+  opacity: 0.4;
+}
+.tech-btn:hover {
+  transform: translateY(-2px);
+}
+
+/*立体玻璃卡片 */
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  /*玻璃厚度*/
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.102),
+    rgba(255, 255, 255, 0.03)
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 0.5px solid rgba(161, 157, 157, 0.072);
+  border-radius: 2rem;
+  /*玻璃反光*/
+  box-shadow: inset 0 1px 5px rgba(255, 255, 255, 0.15),
+    0 30px 60px rgba(0, 0, 0, 0.35);
+  transition: transform 400ms ease, box-shadow 400ms ease,
+    border-color 100ms ease;
+}
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0.05),
+    transparent 25%
+  );
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.4),
+    0 40px 80px rgba(0, 0, 0, 0.55);
+}
+
+.soft-float {
+  animation: soft-float 4s ease-in-out infinite;
+}
+
+.pulse-soft {
+  animation: pulse-soft 4s infinite ease-in-out;
 }
 
 @keyframes spin {

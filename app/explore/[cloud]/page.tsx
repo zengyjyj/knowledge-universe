@@ -208,11 +208,7 @@ function CategoryGrid({
           <button
             key={cat.id}
             onClick={() => onSelect(cat.id)}
-            className="
-            rounded-3xl p-6 text-left
-            bg-white/5 border border-white/15
-            transition-all duration-300
-            hover:bg-white/10 hover:scale-[1.01]   "
+            className=" glass-card  p-7 text-left transition-all "
           >
             <div className="text-xl font-light text-white">{cat.title}</div>
             <div className="text-sm text-gray-500 mt-1">
@@ -247,12 +243,7 @@ function SubCategoryCard({
           <button
             key={sub.id}
             onClick={() => router.push(`/explore/${cloud.name}/${sub.name}`)}
-            className="
-              rounded-3xl p-6 text-left
-              bg-white/5 border border-white/15
-              transition-all duration-300
-              hover:bg-white/10 hover:scale-[1.02]
-            "
+            className=" glass-card  p-7 text-left transition-all "
           >
             <div className="text-xl font-light text-white">{sub.title}</div>
             <div className="text-sm text-gray-500 mt-1">
@@ -273,7 +264,7 @@ function OrbitRings({ color }: { color: string }) {
     { r: 122, opacity: 0.25 },
     { r: 132, opacity: 0.15 },
     { r: 140, opacity: 0.1 },
-    { r: 146, opacity: 0.09 },
+    { r: 1, opacity: 0.09 },
   ];
 
   return (

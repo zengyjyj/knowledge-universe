@@ -35,24 +35,7 @@ export default function ExplorePage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-light">探索模式</h2>
 
-          <button
-            onClick={() =>
-              setMode(mode === "structure" ? "content" : "structure")
-            }
-            className="flex items-center gap-2 px-4 py-2 border rounded-lg border-gray-300  hover:bg-gray-400"
-          >
-            {mode === "structure" ? (
-              <>
-                <LayoutGrid size={15} />
-                <span>内容模式</span>
-              </>
-            ) : (
-              <>
-                <Layers size={15} />
-                <span>结构模式</span>
-              </>
-            )}
-          </button>
+          <SwitchModeButton mode={mode} onChange={setMode} />
         </div>
 
         {/* 结构模式（五大云） */}
@@ -109,11 +92,75 @@ export default function ExplorePage() {
             {/* node 列表 */}
             <div className="flex flex-wrap gap-6">
               <p>TODO:</p>
+              <p>Effet:https://uiverse.io/ElSombrero2/tricky-robin-67</p>
             </div>
           </div>
         )}
       </div>
     </>
+  );
+}
+
+function SwitchModeButton({
+  mode,
+  onChange,
+}: {
+  mode: "structure" | "content";
+  onChange: (mode: "structure" | "content") => void;
+}) {
+  return (
+    <div
+      onClick={() => onChange(mode === "content" ? "structure" : "content")}
+      className="
+        relative flex items-center
+        w-40 h-11
+        rounded-full
+        bg-white/5 border border-white/15
+        backdrop-blur
+        cursor-pointer select-none
+      "
+    >
+      {/* 滑块*/}
+      <div
+        className="
+          absolute top-1 left-1
+          h-9 w-[calc(50%-4px)]
+          rounded-full
+          transition-all duration-300 ease-out
+        "
+        style={{
+          transform: mode === "content" ? "translateX(0)" : "translateX(100%)",
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15))",
+          boxShadow:
+            "0 8px 20px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.4)",
+        }}
+      />
+
+      {/* 左：内容模式 */}
+      <div className="relative z-10 flex-1 flex items-center justify-center gap-1 text-sm">
+        <LayoutGrid size={14} />
+        <span
+          className={`transition-colors ${
+            mode === "content" ? "text-white" : "text-gray-400"
+          }`}
+        >
+          内容
+        </span>
+      </div>
+
+      {/* 右：结构模式 */}
+      <div className="relative z-10 flex-1 flex items-center justify-center gap-1 text-sm">
+        <Layers size={14} />
+        <span
+          className={`transition-colors ${
+            mode === "structure" ? "text-white" : "text-gray-400"
+          }`}
+        >
+          结构
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -171,44 +218,53 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
   return (
     <button
       onClick={onClick}
-      className={`
-        w-full flex items-center justify-center gap-2 px-4 py-2
-        border text-sm transition    rounded-full 
-      `}
       style={{
+        ["--scan-color" as any]: color,
         backgroundColor: isActive
-          ? withOpacity(color, 0.4)
-          : withOpacity(color, 0.05),
+          ? withOpacity(color, 0.2)
+          : withOpacity(color, 0.06),
         borderColor: isActive ? color : "rgba(255,255,255,0.2)",
         boxShadow: isActive ? `0 0 18px ${color}` : "none",
-        color: isActive ? "white" : "rgba(156,163,175,1)",
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = color;
-        e.currentTarget.style.boxShadow = `0 0 18px ${color}`;
-        e.currentTarget.style.color = "white";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = isActive
-          ? color
-          : "rgba(255,255,255,0.2)";
-        e.currentTarget.style.boxShadow = isActive
-          ? `0 0 18px ${color}`
-          : "none";
-        e.currentTarget.style.color = isActive
-          ? "white"
-          : "rgba(156,163,175,1)";
-      }}
+      className={`
+       group relative overflow-hidden
+        w-full flex items-center justify-center gap-2
+        px-4 py-2 rounded-full border text-sm
+         ${isActive ? "text-white" : "text-gray-400"}
+        transition-all duration-300
+        hover:text-white hover:border-[var(--scan-color)]
+        hover:shadow-[0_0_18px_var(--scan-color)]
+      `}
     >
-      <div
-        className="shrink-0 transition-colors duration-300"
+      {/* 扫描效果 */}
+      <span
+        className="
+          pointer-events-none
+          absolute inset-0
+          translate-y-[-120%]
+          transition-transform duration-700 ease-out
+          group-hover:translate-y-[120%]
+        "
         style={{
-          color: isActive ? color : "rgba(255,255,255,0.5)",
+          opacity: 0.2,
+          background:
+            "linear-gradient(to bottom, transparent, var(--scan-color), transparent)",
         }}
-      >
-        {icon}
-      </div>
-      <span className="whitespace-nowrap">{label}</span>
+      />
+
+      {/* 内容 */}
+      <span className="relative z-10 flex items-center gap-2">
+        <span
+          className="transition-colors duration-300"
+          style={{
+            color: isActive ? color : "rgba(255,255,255,0.5)",
+          }}
+        >
+          {icon}
+        </span>
+
+        <span className="whitespace-nowrap">{label}</span>
+      </span>
     </button>
   );
 }

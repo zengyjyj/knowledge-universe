@@ -13,11 +13,22 @@ export const cloudIcons: Record<string, JSX.Element> = {
 export const cloudColors: Record<string, string> = {
   life: "rgb(210, 109, 109)",
   learning: "rgb(100,150,255 )",
-  skill: "rgb(255,220,100 )",
-  growth: "rgb(35, 220, 22 )",
-  world: "rgb(212, 51, 172 )",
+  skill: "rgba(255, 219, 100, 0.82)",
+  growth: "rgba(81, 220, 22, 0.78)",
+  world: "rgba(199, 110, 217, 0.85)",
 };
 
 export function withOpacity(color: string, opacity: number) {
-  return color.replace("rgb", "rgba").replace(")", `, ${opacity})`);
+  if (color.startsWith("rgba")) {
+    return color.replace(
+      /rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/,
+      `rgba($1,$2,$3,${opacity})`
+    );
+  }
+
+  if (color.startsWith("rgb")) {
+    return color.replace("rgb", "rgba").replace(")", `, ${opacity})`);
+  }
+
+  return color;
 }
