@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase/browser";
-import type { Node, NodePath } from "../types/database";
+import type { GuideNode, Node, NodePath } from "../types/database";
 
 export async function getNodeDetailById(nodeId: number): Promise<{
   node: Node;
@@ -15,7 +15,7 @@ export async function getNodeDetailById(nodeId: number): Promise<{
           clouds!inner (name,title
           )
         )
-      ) `
+      ) `,
     )
     .eq("id", nodeId)
     .single();
@@ -42,7 +42,7 @@ export async function getNodeDetailById(nodeId: number): Promise<{
 }
 
 export async function getNodesBySubCategoryId(
-  subCategory_id: number
+  subCategory_id: number,
 ): Promise<Node[]> {
   const { data, error } = await supabase
     .from("nodes")
@@ -55,7 +55,7 @@ export async function getNodesBySubCategoryId(
 }
 
 export async function getNodesBySubCategoryName(
-  subCategoryName: string
+  subCategoryName: string,
 ): Promise<Node[]> {
   const { data, error } = await supabase
     .from("nodes")
@@ -65,11 +65,46 @@ export async function getNodesBySubCategoryName(
       subcategories!inner (
         name
       )
-    `
+    `,
     )
     .eq("subcategories.name", subCategoryName);
 
   if (error) throw error;
 
   return data as Node[];
+}
+
+//return the guide nodes for all clouds, grouped by cloud name
+export async function getGuideNodes(): Promise<Map<string, GuideNode[]>> {
+  const { data, error } = await supabase.from("nodes").select(`
+      id,
+      question,
+      definition,
+      subcategories!inner (
+        categories!inner (
+          clouds!inner (
+            name
+          )
+        )
+      )
+    `);
+
+  if (error) throw error;
+
+  const result = new Map<string, GuideNode[]>();
+
+  for (const node of data) {
+    const cloudName = node.subcategories?.categories?.clouds?.name;
+
+    if (!cloudName) continue;
+
+    if (!result.has(cloudName)) result.set(cloudName, []);
+
+    result.get(cloudName)!.push({
+      id: node.id,
+      question: node.question,
+      definition: node.definition,
+    });
+  }
+  return result;
 }

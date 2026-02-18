@@ -53,15 +53,12 @@ function NodeCard({ node }: { node: Node }) {
       onClick={() => router.push(`/node/${node.id}`)}
       className=" 
         rounded-3xl p-6
-
         bg-gradient-to-br
         from-purple-400/30 via-transparent/20 to-sky-300/20
-
         transition-all duration-300
         hover:-translate-y-1
         hover:shadow-2xl
-      
-                "
+        "
     >
       <h3
         className=" text-lg

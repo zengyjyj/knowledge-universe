@@ -1,25 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { cloudIcons, cloudColors, withOpacity } from "@/data/clouds";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { useRouter } from "next/navigation";
-import { LayoutGrid, Layers } from "lucide-react";
+import Link from "next/link";
+import {
+  LayoutGrid,
+  Layers,
+  CircleArrowRight,
+  CircleQuestionMark,
+} from "lucide-react";
 import { getAllClouds } from "@/data/queries/cloud";
-import type { Cloud } from "@/data/types/database";
+import type { Cloud, GuideNode } from "@/data/types/database";
+import { getGuideNodes } from "@/data/queries/nodes";
 
 export default function ExplorePage() {
   const [mode, setMode] = useState<"structure" | "content">("content");
   const [clouds, setClouds] = useState<Cloud[]>([]);
+  const [guideNodes, setGuideNodes] = useState<Map<string, GuideNode[]>>(
+    new Map(),
+  );
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     getAllClouds()
       .then(setClouds)
       .finally(() => setLoading(false));
+
+    getGuideNodes()
+      .then(setGuideNodes)
+      .finally(() => setLoading(false));
   }, []);
   const [currentCloud, setCurrentCloud] = useState<string>("life");
 
+  // console.log("GuideNodes Map:", guideNodes);
+  // console.log("life cloud nodes:", guideNodes.get("life"));
   return (
     <>
       {/* 背景渐变 */}
@@ -88,11 +103,24 @@ export default function ExplorePage() {
                 );
               })}
             </div>
-
-            {/* node 列表 */}
-            <div className="flex flex-wrap gap-6">
-              <p>TODO:</p>
-              <p>Effet:https://uiverse.io/ElSombrero2/tricky-robin-67</p>
+            {/* guideCard 引导小卡片 */}
+            <div
+              className=" grid gap-3 grid-cols-1
+              sm:grid-cols-3
+              lg:grid-cols-4
+              xl:grid-cols-5
+          "
+            >
+              {guideNodes.get(currentCloud) &&
+                guideNodes
+                  .get(currentCloud)!
+                  .map((node) => (
+                    <GuideCard
+                      key={node.id}
+                      node={node}
+                      color={cloudColors[currentCloud]}
+                    />
+                  ))}
             </div>
           </div>
         )}
@@ -269,38 +297,92 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
   );
 }
 
-function NodeCard({ node, color }: any) {
+function GuideCard({ node, color }: any) {
   return (
-    <Link
-      href={`/node/${node.id}`}
-      className="
-        group relative block p-5 w-60 rounded-xl
-        bg-white/5 border transition-all duration-300
-        hover:scale-105 cursor-pointer overflow-hidden
-      "
-      style={{
-        borderColor: "rgba(255,255,255,0.2)",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = color;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-      }}
-    >
-      {/* 光晕 */}
-      <div
-        className="
-          absolute inset-0 rounded-xl opacity-0
-          group-hover:opacity-20 group-hover:scale-110
-          transition-all duration-500
-          
-        "
-      />
+    <div className="group relative h-[170px] mb-3 break-inside-avoid">
+      {/* 动态颜色旋转渐变 */}
+      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+        <div
+          className="
+            absolute inset-0 
+            opacity-0
+            group-hover:opacity-80
+            transition-opacity 
+            group-hover:animate-spin-slow
+            group-hover:delay-150
+            pointer-events-none
+          "
+          style={{
+            background: `conic-gradient(from 0deg, transparent, ${color}, transparent)`,
+          }}
+        />
+        <div className="absolute inset-[2px] rounded-3xl bg-[#0b0f1a]" />
+      </div>
 
-      <h4 className="relative z-10 text-center text-gray-200 group-hover:text-white">
-        {node.title}
-      </h4>
-    </Link>
+      {/*  3D 翻转 */}
+      <div className="relative h-full [perspective:1000px]">
+        <div
+          className="
+            relative h-full
+            transition-transform duration-500
+            [transform-style:preserve-3d]
+            group-hover:[transform:rotateY(180deg)]
+          "
+        >
+          {/* 正面 */}
+          <div className="absolute inset-0 [backface-visibility:hidden]">
+            <div
+              className="
+                h-full  bg-white/5 backdrop-blur
+                border border-white/10
+                rounded-3xl  px-4 py-4
+                flex items-center justify-center
+                text-center "
+            >
+              <h3 className="text-lg text-white/85 leading-snug font-light flex items-start gap-2">
+                <span className="flex-shrink-0 mt-[2px]" style={{ color }}>
+                  <CircleQuestionMark size={18} strokeWidth={1.8} />
+                </span>
+                <span>{node.question}</span>
+              </h3>
+            </div>
+          </div>
+
+          {/* 背面 */}
+          <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            <div
+              className="
+                h-full bg-grey/30 backdrop-blur
+                border border-white/5
+                rounded-3xl  px-4 py-4
+                flex items-center justify-center
+                text-center  "
+            >
+              <p className="text-sm text-gray-400  ">{node.definition}</p>
+              {/* 右下角跳转按钮 */}
+              <Link
+                href={`/node/${node.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="
+                  absolute bottom-3 right-4
+                  flex items-center gap-1
+                  text-xs  text-white/80
+                  border border-white/30 rounded-full px-2 py-1
+                  group-hover:opacity-100
+                  soft-float
+                  hover:text-white  hover:border-white/80
+                "
+                style={{
+                  textShadow: `0 0 8px ${color}40`,
+                }}
+              >
+                <span>了解更多</span>
+                <CircleArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -30,6 +30,13 @@ export type Node = {
   title: string;
   definition: string;
   detail: string;
+  question: string;
+};
+
+export type GuideNode = {
+  id: number;
+  definition: string;
+  question: string;
 };
 
 export type NodePath = {

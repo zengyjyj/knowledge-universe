@@ -41,11 +41,8 @@ body {
   inset: 0;
   z-index: 1;
   opacity: 0.3;
-  background-image: linear-gradient(
-      to right,
-      rgba(148, 163, 184, 0.09) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.09) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(148, 163, 184, 0.09) 1px, transparent 1px);
   background-size: 40px 40px;
 }
@@ -54,7 +51,10 @@ body {
 .tech-btn {
   position: relative;
   overflow: hidden;
-  transition: color 300ms ease, border-color 300ms ease, box-shadow 400ms ease,
+  transition:
+    color 300ms ease,
+    border-color 300ms ease,
+    box-shadow 400ms ease,
     transform 300ms ease;
 }
 .tech-btn::before {
@@ -92,9 +92,12 @@ body {
   border: 0.5px solid rgba(161, 157, 157, 0.072);
   border-radius: 2rem;
   /*玻璃反光*/
-  box-shadow: inset 0 1px 5px rgba(255, 255, 255, 0.15),
+  box-shadow:
+    inset 0 1px 5px rgba(255, 255, 255, 0.15),
     0 30px 60px rgba(0, 0, 0, 0.35);
-  transition: transform 400ms ease, box-shadow 400ms ease,
+  transition:
+    transform 400ms ease,
+    box-shadow 400ms ease,
     border-color 100ms ease;
 }
 .glass-card::before {
@@ -113,7 +116,8 @@ body {
 
 .glass-card:hover {
   transform: translateY(-4px);
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.4),
+  box-shadow:
+    inset 0 2px 6px rgba(255, 255, 255, 0.4),
     0 40px 80px rgba(0, 0, 0, 0.55);
 }
 
@@ -123,6 +127,23 @@ body {
 
 .pulse-soft {
   animation: pulse-soft 4s infinite ease-in-out;
+}
+
+.perspective {
+  perspective: 1000px;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
