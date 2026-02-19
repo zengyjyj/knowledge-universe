@@ -1,8 +1,8 @@
-import { supabase } from "@/lib/supabase/browser";
+import { supabase } from "@/lib/supabase/supabaseBrowser";
 import { Category } from "../types/database";
 
 export async function getCategoriesByCloudName(
-  cName: string
+  cName: string,
 ): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
@@ -12,7 +12,7 @@ export async function getCategoriesByCloudName(
       clouds!inner (
         name
       )
-    `
+    `,
     )
     .eq("clouds.name", cName);
 

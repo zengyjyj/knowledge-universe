@@ -1,5 +1,5 @@
 // path: data/queries/favoriteNodeServer.ts
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/supabaseServer";
 import type { Node } from "../types/database";
 
 export async function getFavoriteNodeState(nodeId: number) {

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser";
+import { supabase } from "@/lib/supabase/supabaseBrowser";
 import type { GuideNode, Node, NodePath } from "../types/database";
 
 export async function getNodeDetailById(nodeId: number): Promise<{

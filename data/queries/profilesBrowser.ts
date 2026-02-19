@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser";
+import { supabase } from "@/lib/supabase/supabaseBrowser";
 import { AuthErrorCode } from "../authErrors";
 
 export async function signUp({

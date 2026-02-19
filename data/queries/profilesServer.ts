@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/supabaseServer";
 import { Profile } from "../types/database";
 import { unstable_noStore as noStore } from "next/cache";
 

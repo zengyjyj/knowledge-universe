@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/browser";
+import { supabase } from "@/lib/supabase/supabaseBrowser";
 import type { Cloud } from "../types/database";
 
 export async function getAllClouds(): Promise<Cloud[]> {

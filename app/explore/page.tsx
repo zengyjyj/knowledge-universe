@@ -297,6 +297,7 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
   );
 }
 
+//TODO：bug while hovering the card
 function GuideCard({ node, color }: any) {
   return (
     <div className="group relative h-[170px] mb-3 break-inside-avoid">

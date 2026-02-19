@@ -38,7 +38,7 @@ export async function POST(req: Request) {
             });
           },
         },
-      }
+      },
     );
 
     const { data, error } = await supabase.auth.signInWithPassword({
