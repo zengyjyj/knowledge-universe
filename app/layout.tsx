@@ -29,7 +29,7 @@ export default async function RootLayout({
     <html lang="zh">
       <body>
         {/* 顶部导航 */}
-        <header className="relative z-50" style={styles.header}>
+        <header className="relative z-50 " style={styles.header}>
           {/* 左侧 Logo + 名称 */}
           <Link href="/" style={styles.left}>
             <img src="/logo.png" alt="logo" style={styles.logoImage} />

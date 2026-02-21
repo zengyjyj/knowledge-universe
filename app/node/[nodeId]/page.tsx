@@ -27,22 +27,24 @@ export default function NodePage() {
   useEffect(() => {
     async function run() {
       try {
-        getNodeDetailById(nodeId).then((res) => {
-          setNode(res.node);
-          setNodePath(res.nodePath);
-        });
-        getNodeState(nodeId).then((res) => {
-          setLoggedIn(res.loggedIn);
-          setFavorited(res.favorited);
-        });
+        const [nodeRes, stateRes] = await Promise.all([
+          getNodeDetailById(nodeId),
+          getNodeState(nodeId),
+        ]);
+
+        setNode(nodeRes.node);
+        setNodePath(nodeRes.nodePath);
+        setLoggedIn(stateRes.loggedIn);
+        setFavorited(stateRes.favorited);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Unknown error");
       } finally {
         setLoading(false);
       }
     }
+
     if (nodeId) run();
-  }, [nodeId, favorited, loggedIn]);
+  }, [nodeId]); // ✅ 只保留 nodeId
 
   if (error || loading || !node || !nodePath) return null;
 
@@ -76,12 +78,13 @@ export default function NodePage() {
           {
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Cloudy className=" w-4 h-4 group-hover:scale-110" />
-              <BackToCloud cTitle={nodePath.cTitle} />
+              <BackToCloud cTitle={nodePath.cTitle} cName={nodePath.cName} />
 
               <span className="opacity-40">{">>"}</span>
               <BackToCategory
                 cName={nodePath.cName}
                 catTitle={nodePath.catTitle}
+                catName={nodePath.catName}
               />
 
               <span className="opacity-40">{">>"}</span>
@@ -168,11 +171,11 @@ function NodeDetail({ title, content }: { title: string; content: string }) {
   );
 }
 
-function BackToCloud({ cTitle }: { cTitle: string }) {
+function BackToCloud({ cName, cTitle }: { cName: string; cTitle: string }) {
   const router = useRouter();
   return (
     <span
-      onClick={() => router.push(`/explore`)}
+      onClick={() => router.push(`/explore/${cName}`)}
       className="cursor-pointer hover:text-white transition"
     >
       {cTitle}
@@ -183,14 +186,16 @@ function BackToCloud({ cTitle }: { cTitle: string }) {
 function BackToCategory({
   cName,
   catTitle,
+  catName,
 }: {
   cName: string;
   catTitle: string;
+  catName: string;
 }) {
   const router = useRouter();
   return (
     <span
-      onClick={() => router.push(`/explore/${cName}`)}
+      onClick={() => router.push(`/explore/${cName}?category=${catName}`)}
       className="cursor-pointer hover:text-white transition"
     >
       {catTitle}
@@ -256,9 +261,10 @@ export function FavoriteNodeButton({
   loggedIn: boolean;
   onChangeFavorited: (v: boolean) => void;
 }) {
+  const router = useRouter();
+
   async function toggleLike() {
     if (!loggedIn) {
-      const router = useRouter();
       router.push("/user");
       return;
     }

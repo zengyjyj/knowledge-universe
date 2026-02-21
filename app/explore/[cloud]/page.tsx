@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { cloudIcons, cloudColors } from "@/data/clouds";
 import React from "react";
@@ -15,6 +14,8 @@ import type { Cloud, Category, SubCategory } from "@/data/types/database";
 export default function CloudPage() {
   const params = useParams();
   const cloudName = params.cloud as string; //get current cloud
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
 
   const [cloudInfo, setCloud] = useState<Cloud | null>(null);
   const [categories, setCategories] = useState<Category[] | null>(null);
@@ -26,7 +27,7 @@ export default function CloudPage() {
   const [error, setError] = useState<string | null>(null);
   const subCategories =
     activeCategoryId !== null
-      ? subCategoriesMap.get(activeCategoryId) ?? []
+      ? (subCategoriesMap.get(activeCategoryId) ?? [])
       : [];
 
   useEffect(() => {
@@ -60,6 +61,16 @@ export default function CloudPage() {
       cancelled = true;
     };
   }, [cloudName]);
+
+  //if exist categoryParam
+  useEffect(() => {
+    if (!categoryParam) return;
+    if (!categories) return;
+    const cat = categories.find((c) => c.name === categoryParam);
+    if (cat) {
+      setActiveCategoryId(cat.id);
+    }
+  }, [categoryParam, categories]);
 
   if (loading || !cloudInfo || !categories) return null;
 
@@ -158,19 +169,18 @@ function CloudLargeCard({ cloudKey }: { cloudKey: string }) {
       </defs>
 
       <OrbitRings color={color} />
-      <OrbitStars />
 
       <circle
         cx="130"
         cy="130"
         r="92"
-        fill="rgba(178, 166, 166, 0.05)"
+        fill="none"
         stroke={color}
+        strokeOpacity={0.7}
         strokeWidth="2"
-        filter="url(#glow)"
-        className="pulse-soft"
       />
 
+      {/* icon */}
       <foreignObject x="30" y="105" width="200" height="180">
         <div
           className=" flex flex-col items-center justify-center text-center text-white"
@@ -178,7 +188,7 @@ function CloudLargeCard({ cloudKey }: { cloudKey: string }) {
         >
           <div className="mb-2 text-[color:var(--cloud-color)]">
             {React.cloneElement(cloudIcons[cloudKey], {
-              className: "w-10 h-10",
+              className: "w-12 h-12",
             })}
           </div>
         </div>
@@ -198,7 +208,9 @@ function CategoryGrid({
 }) {
   return (
     <div className="mt-6">
-      <h3 className="text-5xl font-light text-white ">{cloudInfo.title}</h3>
+      <h3 className="text-5xl font-light text-white  tracking-widest  ">
+        {cloudInfo.title}
+      </h3>
       <p className="text-xl text-gray-400 font-light mt-2">
         | {cloudInfo.description}
       </p>
@@ -233,7 +245,9 @@ function SubCategoryCard({
   const router = useRouter();
   return (
     <div className="mt-6">
-      <h3 className="text-5xl font-light  ">{category.title}</h3>
+      <h3 className="text-5xl font-light  tracking-widest ">
+        {category.title}
+      </h3>
       <p className="text-xl text-gray-400 font-light mt-2">
         | {category.description}
       </p>
@@ -258,78 +272,33 @@ function SubCategoryCard({
 
 function OrbitRings({ color }: { color: string }) {
   const rings = [
-    { r: 100, opacity: 0.44 },
-    { r: 107, opacity: 0.35 },
-    { r: 114, opacity: 0.25 },
-    { r: 122, opacity: 0.25 },
-    { r: 132, opacity: 0.15 },
-    { r: 140, opacity: 0.1 },
-    { r: 1, opacity: 0.09 },
+    { r: 107, opacity: 0.45, duration: 28 },
+    { r: 122, opacity: 0.35, duration: 15 },
+    { r: 140, opacity: 0.3, duration: 10 },
   ];
 
   return (
     <>
       {rings.map((ring, i) => (
-        <circle
+        <g
           key={i}
-          cx="130"
-          cy="130"
-          r={ring.r}
-          fill="none"
-          stroke={color}
-          strokeWidth="1"
-          opacity={ring.opacity}
-        />
+          style={{
+            transformOrigin: "130px 130px",
+            animation: `spin ${ring.duration}s linear infinite`,
+          }}
+        >
+          <circle
+            cx="130"
+            cy="130"
+            r={ring.r}
+            fill="none"
+            stroke={color}
+            strokeWidth="1"
+            strokeDasharray="3 3"
+            opacity={ring.opacity}
+          />
+        </g>
       ))}
     </>
-  );
-}
-
-function OrbitStars() {
-  return (
-    <>
-      <OrbitStar radius={100} angle={0} duration={20} opacity={0.9} />
-      <OrbitStar radius={107} angle={20} duration={18} opacity={0.8} />
-      <OrbitStar radius={114} angle={20} duration={16} opacity={0.75} />
-      <OrbitStar radius={114} angle={20} duration={15} opacity={0.7} />
-      <OrbitStar radius={122} angle={60} duration={13} opacity={0.65} />
-      <OrbitStar radius={122} angle={200} duration={13} opacity={0.6} />
-      <OrbitStar radius={140} angle={200} duration={14} opacity={0.55} />
-    </>
-  );
-}
-
-function OrbitStar({
-  radius,
-  angle,
-  size = 1.5,
-  color = "grey",
-  duration,
-  opacity,
-}: {
-  radius: number;
-  angle: number;
-  size?: number;
-  color?: string;
-  duration?: number;
-  opacity?: number;
-}) {
-  return (
-    <g
-      style={{
-        transformOrigin: "130px 130px",
-        animation: `spin ${duration}s linear infinite`,
-        animationDelay: `-${Math.random() * 10}s`,
-        transform: `rotate(${angle}deg)`,
-      }}
-    >
-      <circle
-        cx={130}
-        cy={130 - radius}
-        r={size}
-        fill={color}
-        opacity={opacity}
-      />
-    </g>
   );
 }

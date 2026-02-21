@@ -1,14 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import StarfieldBackground from "@/components/starfieldBackground";
-import { HomeCard, homeCards } from "@/data/types/homeCard";
+import { HomeCard, homeCards } from "@/data/entries";
 import { Compass, Target, MessageCircle } from "lucide-react";
+import { withOpacity } from "@/data/clouds";
 
 export default function HomePage() {
-  const [hover, setHover] = useState<number | null>(null);
-
   return (
     <div className="relative z-10 text-white">
       {/* 背景 */}
@@ -20,8 +18,11 @@ export default function HomePage() {
       <main className="relative z-10 w-full mx-auto px-6">
         <div className="flex flex-col items-center">
           {/* 标题区 */}
-          <section className="text-center mt-[20vh] mb-24">
-            <h1 className="text-5xl md:text-8xl font-thin mb-8 tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 drop-shadow-[0_0_30px_rgba(255,255,255,0.6)]">
+          <section className="text-center mt-[18vh] mb-20">
+            <h1
+              className="text-5xl md:text-8xl font-thin mb-8 tracking-tight text-transparent bg-clip-text 
+            bg-gradient-to-b from-white via-white to-white/40 drop-shadow-[0_0_30px_rgba(255,255,255,0.6)]"
+            >
               让世界变得清晰
             </h1>
             <p className="mt-6 text-lg text-gray-400 tracking-widest">
@@ -30,14 +31,9 @@ export default function HomePage() {
           </section>
 
           {/* 卡片区 */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <section className="grid grid-cols-1 mt-3 md:grid-cols-3 gap-8 items-stretch">
             {homeCards.map((card) => (
-              <CardItem
-                key={card.id}
-                card={card}
-                hover={hover}
-                setHover={setHover}
-              />
+              <CardItem key={card.id} {...card} />
             ))}
           </section>
         </div>
@@ -47,41 +43,36 @@ export default function HomePage() {
 }
 
 const iconMap = {
-  compass: <Compass className="w-6 h-6 text-blue-400" />,
+  compass: <Compass className="w-7 h-7 text-blue-400" />,
   target: <Target className="w-6 h-6 text-green-400" />,
   message: <MessageCircle className="w-6 h-6 text-purple-400" />,
 };
-type CardItemProps = {
-  card: HomeCard;
-  hover: number | null;
-  setHover: (id: number | null) => void;
-};
 
-export function CardItem({ card, hover, setHover }: CardItemProps) {
+export function CardItem(card: HomeCard) {
   const router = useRouter();
-  const isHover = hover === card.id;
+  const scanColor = withOpacity(card.color, 0.12);
+  const borderColor = withOpacity(card.color, 0.5);
+  const shadowColor = withOpacity(card.color, 0.55);
 
   return (
     <div
       onClick={() => router.push(card.route)}
-      onMouseEnter={() => setHover(card.id)}
-      onMouseLeave={() => setHover(null)}
       style={{
-        // 注入扫描线颜色（来自静态数据）
-        ["--scan-color" as any]: card.scanColor,
+        ["--scan-color" as any]: scanColor,
+        ["--border-color" as any]: borderColor,
+        ["--shadow-color" as any]: shadowColor,
       }}
-      className={`
+      className={` 
         relative overflow-hidden
         group cursor-pointer p-6 rounded-3xl
+          h-full min-h-[250px]
         bg-white/5 border border-white/15 backdrop-blur
         shadow-[inset_0_0_8px_rgba(255,255,255,0.05)]
         transition-all duration-300
-        ${
-          isHover
-            ? `border-white/40 shadow-[0_0_25px_rgba(255,255,255,0.25)]
-               scale-[1.03] bg-white/10 ${card.borderColor}`
-            : ""
-        }
+        hover:scale-[1.03] hover:bg-white/10
+        hover:border-[var(--border-color)]
+        hover:shadow-[0_0_25px_var(--shadow-color)]
+  
       `}
     >
       {/*  扫描线 */}
@@ -91,7 +82,7 @@ export function CardItem({ card, hover, setHover }: CardItemProps) {
           absolute inset-0
           translate-y-[-120%]
           transition-transform duration-1000 ease-in-out
-          ${isHover ? "translate-y-[120%]" : ""}
+          group-hover:translate-y-[120%]
         `}
         style={{
           background:
@@ -100,7 +91,7 @@ export function CardItem({ card, hover, setHover }: CardItemProps) {
       />
 
       {/*  内容层  */}
-      <div className="relative z-10">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           {iconMap[card.iconKey]}
           <h3 className="text-2xl font-light group-hover:text-white">
@@ -108,14 +99,12 @@ export function CardItem({ card, hover, setHover }: CardItemProps) {
           </h3>
         </div>
 
-        <p className="text-sm text-gray-400 text-center mb-10">
-          {card.subtitle}
-        </p>
+        <p className="text-sm text-gray-400   mb-10">{card.subtitle}</p>
 
         <p
           className={`
-            text-sm text-center leading-relaxed transition-colors duration-300
-            ${isHover ? "text-white" : "text-gray-400"}
+            text-sm  leading-relaxed transition-colors duration-300
+              text-gray-400 group-hover:text-white
           `}
         >
           {card.description}

@@ -10,6 +10,7 @@ import {
   Layers,
   CircleArrowRight,
   CircleQuestionMark,
+  Search,
 } from "lucide-react";
 import { getAllClouds } from "@/data/queries/cloud";
 import type { Cloud, GuideNode } from "@/data/types/database";
@@ -48,7 +49,12 @@ export default function ExplorePage() {
       >
         {/* 标题 + 模式切换按钮 */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-light">探索模式</h2>
+          {mode === "content" && (
+            <h2 className="text-3xl   font-thin tracking-widest">探索模式</h2>
+          )}
+          {mode === "structure" && (
+            <h2 className="text-3xl font-thin tracking-widest">结构模式</h2>
+          )}
 
           <SwitchModeButton mode={mode} onChange={setMode} />
         </div>
@@ -121,6 +127,7 @@ export default function ExplorePage() {
                       color={cloudColors[currentCloud]}
                     />
                   ))}
+              {<EmptyState />}
             </div>
           </div>
         )}
@@ -231,7 +238,7 @@ function CloudCard({ keyName, cloud, href, color }: any) {
         {cloud.icon}
       </div>
 
-      <h2 className="relative z-10 text-lg   group-hover:text-white text-center">
+      <h2 className="relative z-10 text-lg font-light tracking-widest group-hover:text-white text-center">
         {cloud.title}
       </h2>
 
@@ -248,38 +255,22 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
       onClick={onClick}
       style={{
         ["--scan-color" as any]: color,
-        backgroundColor: isActive
-          ? withOpacity(color, 0.2)
-          : withOpacity(color, 0.06),
-        borderColor: isActive ? color : "rgba(255,255,255,0.2)",
+        borderColor: isActive
+          ? withOpacity(color, 0.6)
+          : "rgba(255,255,255,0.2)",
         boxShadow: isActive ? `0 0 18px ${color}` : "none",
       }}
       className={`
-       group relative overflow-hidden
+        bg-white/5
+        group relative overflow-hidden
         w-full flex items-center justify-center gap-2
         px-4 py-2 rounded-full border text-sm
          ${isActive ? "text-white" : "text-gray-400"}
         transition-all duration-300
-        hover:text-white hover:border-[var(--scan-color)]
-        hover:shadow-[0_0_18px_var(--scan-color)]
+        hover:text-white  
+        hover:bg-white/10
       `}
     >
-      {/* 扫描效果 */}
-      <span
-        className="
-          pointer-events-none
-          absolute inset-0
-          translate-y-[-120%]
-          transition-transform duration-700 ease-out
-          group-hover:translate-y-[120%]
-        "
-        style={{
-          opacity: 0.2,
-          background:
-            "linear-gradient(to bottom, transparent, var(--scan-color), transparent)",
-        }}
-      />
-
       {/* 内容 */}
       <span className="relative z-10 flex items-center gap-2">
         <span
@@ -290,14 +281,12 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
         >
           {icon}
         </span>
-
         <span className="whitespace-nowrap">{label}</span>
       </span>
     </button>
   );
 }
 
-//TODO：bug while hovering the card
 function GuideCard({ node, color }: any) {
   return (
     <div className="group relative h-[170px] mb-3 break-inside-avoid">
@@ -334,7 +323,7 @@ function GuideCard({ node, color }: any) {
           <div className="absolute inset-0 [backface-visibility:hidden]">
             <div
               className="
-                h-full  bg-white/5 backdrop-blur
+                h-full  bg-transparent  backdrop-blur-sm
                 border border-white/10
                 rounded-3xl  px-4 py-4
                 flex items-center justify-center
@@ -384,6 +373,36 @@ function GuideCard({ node, color }: any) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+      <div className="text-white/20 ">
+        <Search size={45} strokeWidth={2} />
+      </div>
+
+      <h3 className="  mt-3 text-2xl   tracking-widest text-white/20">
+        暂无相关卡片
+      </h3>
+
+      <Link
+        href="/ask"
+        className="
+          text-sm text-white/50
+          mt-3
+          px-5 py-1
+          rounded-full
+          border border-white/40
+          hover:text-white/70 
+           hover:bg-white/30
+          transition-all
+        "
+      >
+        去AI提问 →
+      </Link>
     </div>
   );
 }
