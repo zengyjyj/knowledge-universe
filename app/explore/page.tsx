@@ -11,6 +11,7 @@ import {
   CircleArrowRight,
   CircleQuestionMark,
   Search,
+  Compass,
 } from "lucide-react";
 import { getAllClouds } from "@/data/queries/cloud";
 import type { Cloud, GuideNode } from "@/data/types/database";
@@ -34,8 +35,6 @@ export default function ExplorePage() {
   }, []);
   const [currentCloud, setCurrentCloud] = useState<string>("life");
 
-  // console.log("GuideNodes Map:", guideNodes);
-  // console.log("life cloud nodes:", guideNodes.get("life"));
   return (
     <>
       {/* 背景渐变 */}
@@ -49,12 +48,17 @@ export default function ExplorePage() {
       >
         {/* 标题 + 模式切换按钮 */}
         <div className="flex items-center justify-between mb-6">
-          {mode === "content" && (
-            <h2 className="text-3xl   font-thin tracking-widest">探索模式</h2>
-          )}
-          {mode === "structure" && (
-            <h2 className="text-3xl font-thin tracking-widest">结构模式</h2>
-          )}
+          <div className="flex items-center gap-2">
+            <Compass
+              size={10}
+              strokeWidth={2}
+              className="w-10 h-10  rounded-xl p-1.5 text-white/80
+                flex items-center justify-center bg-blue-400 "
+            />
+            <h2 className="text-3xl font-light tracking-widest text-white">
+              探索模式
+            </h2>
+          </div>
 
           <SwitchModeButton mode={mode} onChange={setMode} />
         </div>

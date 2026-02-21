@@ -18,9 +18,6 @@ export const homeCards: HomeCard[] = [
     route: "/explore",
     iconKey: "compass",
     color: "rgb(100,150,255 )",
-    // scanColor: "rgba(59,130,246,0.1)",
-    // borderColor: "group-hover:border-blue-400",
-    // shadowColor: "group-hover:shadow-[0_0_20px_rgba(59,130,246,0.8)]",
   },
   {
     id: 2,
@@ -30,9 +27,6 @@ export const homeCards: HomeCard[] = [
     route: "/goal",
     iconKey: "target",
     color: "rgba(81, 220, 22, 0.78)",
-    // scanColor: "rgba(74,222,128,0.1)",
-    // borderColor: "group-hover:border-green-400",
-    // shadowColor: "group-hover:shadow-[0_0_20px_rgba(74,222,128,0.8)]",
   },
   {
     id: 3,
@@ -42,8 +36,5 @@ export const homeCards: HomeCard[] = [
     route: "/ask",
     iconKey: "message",
     color: "rgba(199, 110, 217, 0.85)",
-    // scanColor: "rgba(168,85,247,0.1)",
-    // borderColor: "group-hover:border-purple-400",
-    // shadowColor: "group-hover:shadow-[0_0_20px_rgba(168,85,247,0.8)]",
   },
 ];

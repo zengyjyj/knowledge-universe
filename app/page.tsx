@@ -72,7 +72,6 @@ export function CardItem(card: HomeCard) {
         hover:scale-[1.03] hover:bg-white/10
         hover:border-[var(--border-color)]
         hover:shadow-[0_0_25px_var(--shadow-color)]
-  
       `}
     >
       {/*  扫描线 */}

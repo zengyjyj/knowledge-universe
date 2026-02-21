@@ -1,12 +1,9 @@
-/*
-✅ 放 Logo / 顶部导航 / 背景
-✅ 所有页面共享
-✅ 切换页面时不会重复加载
-*/
+/* 顶部导航 */
 
 import Link from "next/link";
 import "./globals.css";
 import { getCurrentProfile } from "@/data/queries/profilesServer";
+import { MessageCircleQuestion, CircleUser } from "lucide-react";
 
 export const metadata = {
   title: "序光",
@@ -29,24 +26,60 @@ export default async function RootLayout({
     <html lang="zh">
       <body>
         {/* 顶部导航 */}
-        <header className="relative z-50 " style={styles.header}>
+        <header
+          className="relative z-50  fixed top-0 left-0 w-full
+            z-50
+            flex items-center justify-between
+            px-8 py-2
+            backdrop-blur-md
+            bg-black/40
+            border-b border-white/10"
+        >
           {/* 左侧 Logo + 名称 */}
-          <Link href="/" style={styles.left}>
-            <img src="/logo.png" alt="logo" style={styles.logoImage} />
-            <span style={styles.logoText}>序光</span>
+          <Link href="/" className="flex items-center gap-3 group">
+            <img
+              src="/logo.png"
+              alt="logo"
+              width={36}
+              height={36}
+              className="transition-transform duration-300 group-hover:scale-110"
+            />
+            <span
+              className="
+                font-light text-xl  tracking-[0.25em]  transition-colors
+              "
+            >
+              序光
+            </span>
           </Link>
 
           {/* 右侧区域 */}
-          <div style={styles.right}>
-            <Link href="/ask">
-              <img src="/ask.png" alt="问答" style={styles.askingImage} />
+          <div className="flex items-center gap-5">
+            <Link href="/ask" className="group">
+              <MessageCircleQuestion
+                size={30}
+                strokeWidth={2}
+                className="
+                text-purple-400/70
+                transition-all duration-300
+                group-hover:text-purple-400/90
+                group-hover:scale-110
+                group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]
+              "
+              />
             </Link>
 
-            <Link href={userHref}>
-              <img
-                src="/user.png"
-                alt="user space"
-                style={styles.profileImage}
+            <Link href={userHref} className="group">
+              <CircleUser
+                size={30}
+                strokeWidth={2}
+                className="
+                text-indigo-400/80
+                transition-all duration-300
+                group-hover:text-indigo-400/90
+                group-hover:scale-110
+                group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]
+              "
               />
             </Link>
           </div>
@@ -58,50 +91,3 @@ export default async function RootLayout({
     </html>
   );
 }
-const styles = {
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 32px",
-    borderBottom: "0.3px solid #352c3dff",
-  },
-
-  left: {
-    display: "flex",
-    alignItems: "center",
-    textDecoration: "none",
-    gap: 10,
-  },
-
-  logoImage: {
-    width: 36,
-    height: 36,
-  },
-
-  logoText: {
-    fontWeight: "bold",
-    fontSize: 20,
-    color: "#fff",
-    letterSpacing: "2px",
-  },
-
-  right: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-  },
-
-  askingImage: {
-    width: 40,
-    height: 40,
-    cursor: "pointer",
-  },
-
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: "50%",
-    cursor: "pointer",
-  },
-};
