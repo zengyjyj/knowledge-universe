@@ -7,7 +7,7 @@ import StarfieldBackground from "@/components/starfieldBackground";
 import { cloudIcons, cloudColors } from "@/data/clouds";
 import React from "react";
 import { getCategoriesByCloudName } from "@/data/queries/categories";
-import { getAllSubCategoriesMap } from "@/data/queries/subCategories";
+import { getSubCategoriesMapByCatId } from "@/data/queries/subCategories";
 import { getCloudByName } from "@/data/queries/cloud";
 import type { Cloud, Category, SubCategory } from "@/data/types/database";
 
@@ -40,7 +40,7 @@ export default function CloudPage() {
         const [c, cat, subMap] = await Promise.all([
           getCloudByName(cloudName),
           getCategoriesByCloudName(cloudName),
-          getAllSubCategoriesMap(),
+          getSubCategoriesMapByCatId(),
         ]);
 
         if (cancelled) return;

@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase/supabaseBrowser";
 import { SubCategory } from "../types/database";
 
-export async function getAllSubCategoriesMap(): Promise<
+//Map<categoryId, SubCategory[]>
+export async function getSubCategoriesMapByCatId(): Promise<
   Map<number, SubCategory[]>
 > {
   const { data, error } = await supabase

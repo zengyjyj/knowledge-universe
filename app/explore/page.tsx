@@ -271,8 +271,7 @@ function CloudButton({ label, icon, color, isActive, onClick }: any) {
         px-4 py-2 rounded-full border text-sm
          ${isActive ? "text-white" : "text-gray-400"}
         transition-all duration-300
-        hover:text-white  
-        hover:bg-white/10
+        hover:text-white   hover:bg-white/10  hover:scale-[1.03]
       `}
     >
       {/* 内容 */}

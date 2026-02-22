@@ -132,10 +132,10 @@ function NodeButton({ node }: { node: Node }) {
     <button
       onClick={() => router.push(`/node/${node.id}`)}
       className="
-            rounded-xl p-6 text-left
+            rounded-2xl p-5 text-left
             bg-white/5  border border-transparent
             transition-all duration-300
-            hover:bg-blue-400/10  hover:border-blue-400/10 hover:scale-[1.01]
+            hover:bg-blue-400/10  hover:border-blue-400/10 hover:scale-[1.02]
         "
     >
       <div className="text-lg text-white font-light">{node.title}</div>

@@ -47,36 +47,6 @@ body {
   background-size: 40px 40px;
 }
 
-/*渐入按钮 */
-.tech-btn {
-  position: relative;
-  overflow: hidden;
-  transition:
-    color 300ms ease,
-    border-color 300ms ease,
-    box-shadow 400ms ease,
-    transform 300ms ease;
-}
-.tech-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  background: radial-gradient(
-    circle at center,
-    var(--glow-color),
-    transparent 90%
-  );
-  opacity: 0;
-  transition: opacity 400ms ease;
-  pointer-events: none;
-}
-.tech-btn:hover::before {
-  opacity: 0.4;
-}
-.tech-btn:hover {
-  transform: translateY(-2px);
-}
-
 /*立体玻璃卡片 */
 .glass-card {
   position: relative;
@@ -221,4 +191,18 @@ body {
 
 .animate-fade-up {
   animation: fadeUp 0.8s ease-out forwards;
+}
+
+/* scale + bounce */
+@keyframes bounceScale {
+  0%,
+  100% {
+    transform: scale(0.75) translateY(0);
+  }
+  50% {
+    transform: scale(0.75) translateY(-6px);
+  }
+}
+.group:hover .cloud-bounce {
+  animation: bounceScale 1400ms ease-in-out infinite;
 }

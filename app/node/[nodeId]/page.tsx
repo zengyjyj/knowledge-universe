@@ -159,10 +159,10 @@ function NodeDetail({ title, content }: { title: string; content: string }) {
   return (
     <div
       className="
-            rounded-xl p-6 text-left
-            bg-white/5  border border-transparent
+            rounded-2xl p-5 text-left
+            bg-white/5  border border-white/5
             transition-all duration-300
-             
+
         "
     >
       <div className="text-lg text-white font-light">{title}</div>

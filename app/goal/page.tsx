@@ -1,22 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { cloudIcons, cloudColors } from "@/data/clouds";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { useRouter } from "next/navigation";
 import { Bot, Layers, Target } from "lucide-react";
 import { getAllClouds } from "@/data/queries/cloud";
-import type { Cloud } from "@/data/types/database";
+import type { Category, Cloud, SubCategory } from "@/data/types/database";
+import { getCategoriesMapByCloudId } from "@/data/queries/categories";
 
 export default function GoalPage() {
   const [mode, setMode] = useState<"structure" | "AI">("AI");
   const [clouds, setClouds] = useState<Cloud[]>([]);
+  const [categoriesMap, setCategoriesMap] = useState<Map<number, Category[]>>(
+    new Map(),
+  );
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    getAllClouds()
-      .then(setClouds)
-      .finally(() => setLoading(false));
+    async function run() {
+      try {
+        setLoading(true);
+
+        const [cloudsRes, catsMapRes] = await Promise.all([
+          getAllClouds(),
+          getCategoriesMapByCloudId(),
+        ]);
+        setClouds(cloudsRes ?? []);
+        setCategoriesMap(catsMapRes ?? new Map());
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    run();
   }, []);
 
   return (
@@ -25,10 +45,7 @@ export default function GoalPage() {
       <div className="bg-radial-space" />
       <StarfieldBackground />
 
-      <div
-        className="relative w-full  overflow-hidden "
-        style={{ padding: 40 }}
-      >
+      <div className="relative w-full px-10 pt-10 ">
         {/* 标题 + 模式切换按钮 */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -46,38 +63,20 @@ export default function GoalPage() {
           <SwitchModeButton mode={mode} onChange={setMode} />
         </div>
 
-        {/* AI问答模式  */}
-        {mode === "AI" && <GoalAIMode />}
+        {loading ? (
+          <div className="text-white/50 mt-16">Loading...</div>
+        ) : error ? (
+          <div className="mt-20 text-red-300">{error}</div>
+        ) : (
+          <>
+            {/* AI问答模式  */}
+            {mode === "AI" && <GoalAIMode />}
 
-        {/* 结构模式（五大云） */}
-        {mode === "structure" && (
-          <div className="flex flex-col justify-center items-center  mt-20  ">
-            {/* 第一排：三个云 */}
-            <div className="flex justify-center gap-[8vw]">
-              {clouds.slice(0, 3).map((cloud) => (
-                <CloudCard
-                  key={cloud.name}
-                  keyName={cloud.name}
-                  cloud={{ ...cloud, icon: cloudIcons[cloud.name] }}
-                  color={cloudColors[cloud.name]}
-                  href={`/explore/${cloud.name}`}
-                />
-              ))}
-            </div>
-
-            {/* 第二排：两个云 */}
-            <div className="flex justify-center gap-[10vw]">
-              {clouds.slice(3, 5).map((cloud) => (
-                <CloudCard
-                  key={cloud.name}
-                  keyName={cloud.name}
-                  cloud={{ ...cloud, icon: cloudIcons[cloud.name] }}
-                  color={cloudColors[cloud.name]}
-                  href={`/explore/${cloud.name}`}
-                />
-              ))}
-            </div>
-          </div>
+            {/* 结构模式（hover cloud -> categories -> subcategories） */}
+            {mode === "structure" && (
+              <StructureMode clouds={clouds} categoriesMap={categoriesMap} />
+            )}
+          </>
         )}
       </div>
     </div>
@@ -128,7 +127,7 @@ function SwitchModeButton({
             mode === "AI" ? "text-white" : "text-gray-400"
           }`}
         >
-          AI ask
+          AI生成
         </span>
       </div>
 
@@ -143,57 +142,6 @@ function SwitchModeButton({
           结构
         </span>
       </div>
-    </div>
-  );
-}
-
-/* 5 clouds*/
-// TODO
-function CloudCard({ keyName, cloud, href, color }: any) {
-  const router = useRouter();
-
-  return (
-    <div
-      onClick={() => router.push(href)}
-      className="
-        group relative flex flex-col items-center justify-center
-        w-40 h-40 rounded-full p-4
-        bg-white/5 backdrop-blur border border-white/10
-        transition-all duration-300 cursor-pointer
-        hover:scale-110 soft-float
-      "
-      style={{
-        ["--cloud-color" as any]: color,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = color;
-        e.currentTarget.style.boxShadow = `0 0 25px ${color}`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
-    >
-      {/* 彩色扩散光晕 */}
-      <div
-        className="
-          absolute inset-0 rounded-full opacity-0
-          group-hover:opacity-30 group-hover:scale-110
-          transition-all duration-500   "
-        style={{ background: color }}
-      />
-
-      <div className="relative z-10 mb-2  group-hover:text-[var(--cloud-color)]">
-        {cloud.icon}
-      </div>
-
-      <h2 className="relative z-10 text-lg font-light tracking-widest group-hover:text-white text-center">
-        {cloud.title}
-      </h2>
-
-      <p className="relative z-10 font-light text-gray-400 text-xs text-center mt-1 leading-relaxed">
-        {cloud.description}
-      </p>
     </div>
   );
 }
@@ -357,5 +305,185 @@ function LevelCard({
         {title}
       </span>
     </button>
+  );
+}
+
+//结构模式
+function StructureMode({
+  clouds,
+  categoriesMap,
+}: {
+  clouds: Cloud[];
+  categoriesMap: Map<number, Category[]>;
+}) {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col justify-center items-center mt-16">
+      {/* 第一排：3 个 */}
+      <div className="flex justify-center gap-[10vw]">
+        {clouds.slice(0, 3).map((cloud) => {
+          const color = cloudColors[cloud.name];
+          const categories = categoriesMap.get(cloud.id) ?? [];
+
+          return (
+            <CloudOrbitCard
+              key={cloud.id}
+              cloud={{ ...cloud, icon: cloudIcons[cloud.name] }}
+              color={color}
+              categories={categories}
+            />
+          );
+        })}
+      </div>
+
+      {/* 第二排：2 个 */}
+      <div className="flex justify-center gap-[14vw] mt-12">
+        {clouds.slice(3, 5).map((cloud) => {
+          const color = cloudColors[cloud.name];
+          const categories = categoriesMap.get(cloud.id) ?? [];
+
+          return (
+            <CloudOrbitCard
+              key={cloud.id}
+              cloud={{ ...cloud, icon: cloudIcons[cloud.name] }}
+              color={color}
+              categories={categories}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/*云卡 + hover 右侧弧形 categories */
+function CloudOrbitCard({
+  cloud,
+  color,
+  categories,
+}: {
+  cloud: any;
+  color: string;
+  categories: Category[];
+}) {
+  return (
+    <div className="relative group">
+      <div
+        className="
+        cloud-bounce  
+      relative flex flex-col items-center justify-center
+      w-40 h-40 rounded-full p-4
+      bg-white/5 backdrop-blur border border-white/10
+      transition-transform duration-300 cursor-pointer
+        "
+        style={{ ["--cloud-color" as any]: color }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
+      >
+        {/* 光晕 */}
+        <div
+          className="
+            absolute inset-0 rounded-full opacity-0
+            group-hover:opacity-25 group-hover:scale-110
+            transition-all duration-500
+              pointer-events-none z-0
+          "
+          style={{ background: color }}
+        />
+
+        <div className="relative z-10 mb-2 group-hover:text-[var(--cloud-color)]">
+          {cloud.icon}
+        </div>
+
+        <h2 className="relative z-10 text-l font-light tracking-widest text-white text-center">
+          {cloud.title}
+        </h2>
+
+        <p className="relative z-10 font-light text-white/45 text-xs text-center  leading-relaxed">
+          {cloud.description}
+        </p>
+      </div>
+
+      {/* categories  */}
+      <OrbitCategories color={color} categories={categories} />
+    </div>
+  );
+}
+
+/** categories 绕右侧弧形排列 */
+function OrbitCategories({
+  categories,
+  color,
+}: {
+  categories: Category[];
+  color: string;
+}) {
+  const router = useRouter();
+  const radius = 110;
+  const arcStart = -40; // 右上
+  const arcEnd = 40; // 右下
+  const items = categories.slice(0, 6);
+  const n = categories.length;
+
+  const angles = useMemo(() => {
+    if (n <= 1) return [0];
+    const step = (arcEnd - arcStart) / (n - 1);
+    return new Array(n).fill(0).map((_, i) => arcStart + i * step);
+  }, [n]);
+
+  return (
+    <div
+      className="
+          absolute inset-0
+          opacity-0 translate-x-[-20px]
+          group-hover:opacity-100 group-hover:translate-x-0
+          transition-all duration-400
+      "
+    >
+      {/* hover 展开时允许点击 */}
+      <div className="absolute inset-0 pointer-events-auto">
+        {items.map((c, idx) => {
+          const a = (angles[idx] * Math.PI) / 180;
+          const x = Math.cos(a) * radius;
+          const y = Math.sin(a) * radius;
+
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() =>
+                router.push(`/goal/${c.id}?name=${encodeURIComponent(c.title)}`)
+              }
+              className="
+                absolute flex items-center   w-[180px]  
+                text-left gap-2  text-white/70 hover:text-white
+                transition  select-none
+              "
+              style={{
+                left: "50%",
+                top: "50%",
+                transform: `translate(-20%, -50%) translate(${x}px, ${y}px)`,
+                textShadow: "0 0 22px rgba(0,0,0,0.6)",
+              }}
+            >
+              {/* 小圆点 + category titles*/}
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: color,
+                  boxShadow: `0 0 10px ${color}`,
+                }}
+              />
+              <span className="text-s font-light whitespace-nowrap">
+                {c.title}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
