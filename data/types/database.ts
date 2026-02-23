@@ -56,7 +56,18 @@ export type Profile = {
 
 export type GoalLite = {
   id: number;
+  nodeId: number;
   title: string;
   introduction: string;
   difficulty: string;
+};
+
+export type Goal = {
+  id: number;
+  title: string;
+  introduction: string;
+  difficulty: string;
+  description: string;
+  period: string;
+  information: string | null;
 };

@@ -154,7 +154,7 @@ function GoalAIMode() {
   const router = useRouter();
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4">
+    <div className="w-full max-w-5xl mx-auto px-4 animate-fade-up">
       {/* 顶部大标题区 */}
       <section className="text-center mt-[4vh] mb-5">
         <h1>

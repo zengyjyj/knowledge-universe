@@ -44,7 +44,7 @@ export default function NodePage() {
     }
 
     if (nodeId) run();
-  }, [nodeId]); // ✅ 只保留 nodeId
+  }, [nodeId]);
 
   if (error || loading || !node || !nodePath) return null;
 

@@ -29,7 +29,6 @@ export default function GoalCategoryPage() {
     async function run() {
       try {
         setLoading(true);
-        console.log("test database");
         const [subCatsRes, goalsMapRes] = await Promise.all([
           getSubCategoriesByCatId(categoryId),
           getGoalsByCategoryId(categoryId),
@@ -37,9 +36,6 @@ export default function GoalCategoryPage() {
 
         setSubCategories(subCatsRes ?? []);
         setGoalsMap(goalsMapRes ?? new Map());
-        console.log("res");
-        console.log(subCatsRes);
-        console.log(goalsMapRes);
 
         // 默认选中第一个 subcategory
         const firstSub = subCatsRes?.[0];
@@ -111,7 +107,11 @@ export default function GoalCategoryPage() {
               ) : (
                 <div className="grid gap-4">
                   {activeGoals.map((goal) => (
-                    <GoalCard key={goal.id} goal={goal} />
+                    <GoalCard
+                      key={goal.id}
+                      goal={goal}
+                      categoryId={categoryId}
+                    />
                   ))}
                 </div>
               )}
@@ -187,14 +187,27 @@ function SubCategoryButton({
   );
 }
 
-function GoalCard({ goal }: { goal: GoalLite }) {
+function GoalCard({
+  goal,
+  categoryId,
+}: {
+  goal: GoalLite;
+  categoryId: number;
+}) {
+  const router = useRouter();
   const diff = getDifficultyStyle(goal.difficulty);
 
   return (
-    <div
-      className="group relative bg-white/5 border border-white/10 rounded-xl 
-          p-4 transition-all duration-300 hover:bg-white/10 hover:scale-[1.02]
-          "
+    <button
+      onClick={() => {
+        router.push(
+          `/goal/${categoryId}/${goal.nodeId}?difficulty=${goal.difficulty}`,
+        );
+      }}
+      className="group relative w-full text-left 
+                 bg-white/5 border border-white/10 rounded-xl 
+                 p-4 transition-all duration-300 
+                 hover:bg-white/10 hover:scale-[1.02]"
     >
       {/* 难度标签 */}
       <div className="absolute top-4 right-4">
@@ -206,23 +219,24 @@ function GoalCard({ goal }: { goal: GoalLite }) {
       </div>
 
       {/* Title */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-2">
         <Target
           size={18}
-          className="transition-colors duration-300 text-white/70 group-hover:text-green-600"
+          className="mt-[3px] transition-colors duration-300 text-white/70 group-hover:text-green-600"
         />
-        <p
-          className="text-lg font-base  
-              text-white/70 group-hover:text-white transition-colors"
+        <h3
+          className="text-lg font-light 
+                     text-white/70 group-hover:text-white 
+                     transition-colors leading-snug"
         >
           {goal.title}
-        </p>
+        </h3>
       </div>
 
       {/* Introduction */}
-      <p className="text-sm font-light text-white/50 leading-relaxed ml-2 mr-2">
+      <p className="text-sm font-light text-white/50 leading-relaxed mt-2">
         {goal.introduction}
       </p>
-    </div>
+    </button>
   );
 }
