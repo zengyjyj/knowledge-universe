@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useParams, useRouter } from "next/navigation";
 import StarfieldBackground from "@/components/starfieldBackground";
 import { Layers, Target, ArrowLeft } from "lucide-react";
-import type { SubCategory } from "@/data/types/database";
-import { getSubCategoriesMapByCatId } from "@/data/queries/subCategories";
+import type { GoalLite, SubCategory } from "@/data/types/database";
+import { getSubCategoriesByCatId } from "@/data/queries/subCategories";
+import { getGoalsByCategoryId } from "@/data/queries/goal";
 
 export default function GoalCategoryPage() {
   const router = useRouter();
@@ -16,11 +17,11 @@ export default function GoalCategoryPage() {
   const categoryId = Number(params.categoryId);
   const categoryName = searchParams.get("name");
 
-  const [subCategoriesMap, setSubCategoriesMap] = useState<
-    Map<number, SubCategory[]>
-  >(new Map());
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [goalsMap, setGoalsMap] = useState<Map<number, GoalLite[]>>(new Map());
 
   const [activeSubCat, setActiveSubCat] = useState<SubCategory | null>(null);
+  const activeGoals = activeSubCat ? (goalsMap.get(activeSubCat.id) ?? []) : [];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,11 +29,20 @@ export default function GoalCategoryPage() {
     async function run() {
       try {
         setLoading(true);
-        const subCatsMapRes = await getSubCategoriesMapByCatId();
-        setSubCategoriesMap(subCatsMapRes ?? new Map());
+        console.log("test database");
+        const [subCatsRes, goalsMapRes] = await Promise.all([
+          getSubCategoriesByCatId(categoryId),
+          getGoalsByCategoryId(categoryId),
+        ]);
+
+        setSubCategories(subCatsRes ?? []);
+        setGoalsMap(goalsMapRes ?? new Map());
+        console.log("res");
+        console.log(subCatsRes);
+        console.log(goalsMapRes);
 
         // 默认选中第一个 subcategory
-        const firstSub = subCatsMapRes?.get(categoryId)?.[0];
+        const firstSub = subCatsRes?.[0];
         if (firstSub) {
           setActiveSubCat(firstSub);
         }
@@ -45,8 +55,6 @@ export default function GoalCategoryPage() {
 
     if (categoryId) run();
   }, [categoryId]);
-
-  const subCategories = subCategoriesMap.get(categoryId) ?? [];
 
   return (
     <div className="relative z-10 text-white ">
@@ -67,8 +75,8 @@ export default function GoalCategoryPage() {
             </button>
           </div>
 
-          {/* 右侧选中subCategory标题 */}
-          <div className="flex-[3] flex items-center ml-5">
+          {/* 选中subCategory标题 */}
+          <div className="flex-[3] flex items-center ">
             <h1 className="text-2xl font-light tracking-wide">
               {activeSubCat?.title}
             </h1>
@@ -83,36 +91,14 @@ export default function GoalCategoryPage() {
           <div className="flex items-stretch gap-6">
             {/* 左侧 SubCategory 目录 */}
             <div className="flex-[1.5] min-w-[200px] space-y-4">
-              {subCategories.map((sub) => {
-                const isActive = activeSubCat?.id === sub.id;
-
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => setActiveSubCat(sub)}
-                    className={`
-                      group w-full text-left px-3 py-2 rounded-lg border text-base
-                      transition-all duration-300 hover:scale-[1.07]
-                      ${
-                        isActive
-                          ? "bg-white/10 border-white/40 text-white/80 scale-[1.07]"
-                          : "bg-white/5 border-white/10 text-white/50  hover:bg-white/10"
-                      }
-                    `}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Layers
-                        size={15}
-                        className={`
-                            transition-colors duration-300
-                            ${isActive ? "text-green-600" : "text-white/50  "}
-                          `}
-                      />
-                      <span className="truncate">{sub.title}</span>
-                    </div>
-                  </button>
-                );
-              })}
+              {subCategories.map((sub) => (
+                <SubCategoryButton
+                  key={sub.id}
+                  sub={sub}
+                  isActive={activeSubCat?.id === sub.id}
+                  onClick={() => setActiveSubCat(sub)}
+                />
+              ))}
             </div>
 
             {/* 中间竖线 */}
@@ -120,22 +106,123 @@ export default function GoalCategoryPage() {
 
             {/* 右侧 Goals */}
             <div className="flex-[6] bg-white/5 border border-white/10 rounded-2xl p-6 min-h-[400px]">
-              {activeSubCat ? (
-                <>
-                  <div className="flex items-center gap-2 mb-6">
-                    <Target size={18} />
-                    <h2 className="text-lg font-light">Goals</h2>
-                  </div>
-
-                  <div className="text-white/50">TODO: Goals 列表</div>
-                </>
+              {activeGoals.length === 0 ? (
+                <div className="text-white/40">No goals available</div>
               ) : (
-                <div className="text-white/40">Select a SubCategory</div>
+                <div className="grid gap-4">
+                  {activeGoals.map((goal) => (
+                    <GoalCard key={goal.id} goal={goal} />
+                  ))}
+                </div>
               )}
             </div>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function getDifficultyStyle(difficulty?: string | null) {
+  switch (difficulty) {
+    case "beginner":
+      return {
+        label: "入门",
+        className: "bg-green-500/20 text-green-500 border-green-500/30",
+      };
+
+    case "intermediate":
+      return {
+        label: "中级",
+        className: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+      };
+
+    case "advanced":
+      return {
+        label: "高级",
+        className: "bg-red-500/20 text-red-500 border-red-500/30",
+      };
+
+    default:
+      return {
+        label: "未知",
+        className: "bg-gray-500/20 text-gray-400 border-gray-400/30",
+      };
+  }
+}
+
+function SubCategoryButton({
+  sub,
+  isActive,
+  onClick,
+}: {
+  sub: SubCategory;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        group w-full text-left px-3 py-2 rounded-lg border text-base
+        transition-all duration-300 hover:scale-[1.07]
+        ${
+          isActive
+            ? "bg-white/10 border-white/40 text-white/80 scale-[1.07]"
+            : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10"
+        }
+      `}
+    >
+      <div className="flex items-center gap-2">
+        <Layers
+          size={15}
+          className={`
+            transition-colors duration-300
+            ${isActive ? "text-green-600" : "text-white/50"}
+          `}
+        />
+        <span className="truncate">{sub.title}</span>
+      </div>
+    </button>
+  );
+}
+
+function GoalCard({ goal }: { goal: GoalLite }) {
+  const diff = getDifficultyStyle(goal.difficulty);
+
+  return (
+    <div
+      className="group relative bg-white/5 border border-white/10 rounded-xl 
+          p-4 transition-all duration-300 hover:bg-white/10 hover:scale-[1.02]
+          "
+    >
+      {/* 难度标签 */}
+      <div className="absolute top-4 right-4">
+        <span
+          className={`px-3 py-1 text-xs rounded-full border ${diff.className}`}
+        >
+          {diff.label}
+        </span>
+      </div>
+
+      {/* Title */}
+      <div className="flex items-center gap-2">
+        <Target
+          size={18}
+          className="transition-colors duration-300 text-white/70 group-hover:text-green-600"
+        />
+        <p
+          className="text-lg font-base  
+              text-white/70 group-hover:text-white transition-colors"
+        >
+          {goal.title}
+        </p>
+      </div>
+
+      {/* Introduction */}
+      <p className="text-sm font-light text-white/50 leading-relaxed ml-2 mr-2">
+        {goal.introduction}
+      </p>
     </div>
   );
 }

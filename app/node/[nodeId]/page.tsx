@@ -166,7 +166,7 @@ function NodeDetail({ title, content }: { title: string; content: string }) {
         "
     >
       <div className="text-lg text-white font-light">{title}</div>
-      <div className="text-sm text-gray-500 mt-1"> {content}</div>
+      <div className="text-sm text-gray-500 mt-1 ml-2 mr-2"> {content}</div>
     </div>
   );
 }

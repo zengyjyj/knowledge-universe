@@ -38,3 +38,17 @@ export async function getSubCategoryByName(
 
   return data as SubCategory;
 }
+
+export async function getSubCategoriesByCatId(
+  categoryId: number,
+): Promise<SubCategory[]> {
+  const { data, error } = await supabase
+    .from("subcategories")
+    .select("*")
+    .eq("category_id", categoryId)
+    .order("id");
+
+  if (error) throw error;
+
+  return data as SubCategory[];
+}

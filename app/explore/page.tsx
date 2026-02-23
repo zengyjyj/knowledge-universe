@@ -351,7 +351,9 @@ function GuideCard({ node, color }: any) {
                 flex items-center justify-center
                 text-center  "
             >
-              <p className="text-sm text-gray-400  ">{node.definition}</p>
+              <p className="text-sm text-gray-400 line-clamp-4 ">
+                {node.definition}
+              </p>
               {/* 右下角跳转按钮 */}
               <Link
                 href={`/node/${node.id}`}

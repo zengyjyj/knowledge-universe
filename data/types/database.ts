@@ -53,3 +53,10 @@ export type Profile = {
   username: string;
   mail: string;
 };
+
+export type GoalLite = {
+  id: number;
+  title: string;
+  introduction: string;
+  difficulty: string;
+};
