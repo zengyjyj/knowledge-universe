@@ -154,21 +154,64 @@ export default function NodePage() {
     </div>
   );
 }
-
 function NodeDetail({ title, content }: { title: string; content: string }) {
-  return (
-    <div
-      className="
-            rounded-2xl p-5 text-left
-            bg-white/5  border border-white/5
-            transition-all duration-300
+  const lines = structuredContent(content);
 
-        "
-    >
+  return (
+    <div className="rounded-2xl p-5 bg-white/5 border border-white/5">
       <div className="text-lg text-white font-light">{title}</div>
-      <div className="text-sm text-gray-500 mt-1 ml-2 mr-2"> {content}</div>
+
+      <div className="text-sm text-gray-400 mt-3 space-y-2">
+        {lines.map((item, index) => (
+          <div key={index}>
+            {item.type === "number" ? (
+              <div className="flex gap-3">
+                <span className="text-gray-400 w-5 text-right">
+                  {item.text.split(".")[0]}.
+                </span>
+                <span>{item.text.replace(/^\d+\.\s*/, "")}</span>
+              </div>
+            ) : (
+              <div>{item.text}</div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
+}
+type StructuredLine = {
+  type: "paragraph" | "number";
+  text: string;
+};
+
+export function structuredContent(content: string): StructuredLine[] {
+  const lines = content.split("\n");
+
+  let numberIndex = 1;
+
+  return lines.map((rawLine) => {
+    const line = rawLine.trim();
+
+    if (!line) {
+      return { type: "paragraph", text: "" };
+    }
+
+    if (line.startsWith("#")) {
+      const text = line.replace(/^#\s*/, "");
+      const result = {
+        type: "number" as const,
+        text: `${numberIndex}. ${text}`,
+      };
+      numberIndex++;
+      return result;
+    }
+
+    return {
+      type: "paragraph" as const,
+      text: line,
+    };
+  });
 }
 
 function BackToCloud({ cName, cTitle }: { cName: string; cTitle: string }) {
