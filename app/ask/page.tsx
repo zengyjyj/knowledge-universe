@@ -9,9 +9,9 @@ type Message =
   | { role: "assistant"; content: AIContent };
 
 type AIContent = {
-  question: string;
+  title: string;
   definition: string;
-  keywords?: string[];
+  detail?: string[];
 };
 
 export default function AskPage() {
@@ -53,10 +53,19 @@ export default function AskPage() {
         ...prev,
         {
           role: "assistant",
-          content: { question: "回答", definition: data.answer },
+          content: {
+            title: data.title,
+            definition: data.definition,
+            detail:
+              typeof data.detail === "string"
+                ? data.detail
+                    .split("<<<>>>")
+                    .map((b: string) => b.trim())
+                    .filter(Boolean)
+                : [],
+          },
         },
       ]);
-      // setMessages((prev) => [...prev, { role: "assistant", content: data.ai }]);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -88,7 +97,6 @@ export default function AskPage() {
           />
 
           {/* ===== 动态消息 ===== */}
-
           {messages.map((msg, index) =>
             msg.role === "user" ? (
               <UserMessage key={index} content={msg.content} />
@@ -97,7 +105,7 @@ export default function AskPage() {
             ),
           )}
 
-          {loading && <AIMessage content="AI 正在生成结构化知识卡片..." />}
+          {loading && <AIMessage content="AI 正在生成......" />}
 
           {error && <div className="text-red-400">{error}</div>}
 
@@ -139,6 +147,7 @@ function AIMessage({
   animate?: boolean;
 }) {
   const isSimpleText = typeof content === "string";
+  console.log(content);
 
   return (
     <div className={`flex justify-start ${animate ? "animate-fade-up" : ""}`}>
@@ -149,29 +158,37 @@ function AIMessage({
         </div>
 
         {/* 气泡 */}
-        <div className="bg-white-500/10 border border-purple-600/30 rounded-2xl px-3 py-3 text-white/80 backdrop-blur-xl">
+        <div className="bg-white-500/10 border border-purple-600/30 rounded-2xl px-3 py-3 text-white/80  ">
           {isSimpleText ? (
             content
           ) : (
             <>
-              <div className="font-semibold mb-2">{content.question}</div>
-              <div className="text-white/80 whitespace-pre-line leading-relaxed">
+              <div className="font-semibold ">{content.title}:</div>
+              <div className="text-white/80 mb-2 whitespace-pre-line leading-relaxed">
                 {content.definition}
               </div>
 
-              {Array.isArray(content.keywords) &&
-                content.keywords.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {content.keywords.map((k, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30"
-                      >
-                        {k}
-                      </span>
-                    ))}
-                  </div>
-                )}
+              {content.detail && content.detail.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {content.detail.map((_, i) => {
+                    if (i % 2 !== 0) return null;
+
+                    const heading = content.detail[i];
+                    const body = content.detail[i + 1];
+
+                    return (
+                      <div key={i}>
+                        <div className="font-semibold text-white/80">
+                          • {heading}
+                        </div>
+                        <div className="text-white/70 leading-relaxed ml-3">
+                          {body}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </>
           )}
         </div>
