@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase/supabaseBrowser";
-import { SubCategory } from "../types/database";
+import { SubCategory, SubCategoryTitle } from "../types/database";
 
 //Map<categoryId, SubCategory[]>
 export async function getSubCategoriesMapByCatId(): Promise<
@@ -25,6 +25,7 @@ export async function getSubCategoriesMapByCatId(): Promise<
   return map;
 }
 
+//categoryName  ->  SubCategory
 export async function getSubCategoryByName(
   subName: string,
 ): Promise<SubCategory> {
@@ -39,6 +40,7 @@ export async function getSubCategoryByName(
   return data as SubCategory;
 }
 
+//categoryId  ->  SubCategory
 export async function getSubCategoriesByCatId(
   categoryId: number,
 ): Promise<SubCategory[]> {
@@ -51,4 +53,14 @@ export async function getSubCategoriesByCatId(
   if (error) throw error;
 
   return data as SubCategory[];
+}
+
+export async function getSubCategoriesName(): Promise<SubCategoryTitle[]> {
+  const { data, error } = await supabase
+    .from("subcategories")
+    .select("id,title");
+
+  if (error) throw error;
+
+  return data as SubCategoryTitle[];
 }

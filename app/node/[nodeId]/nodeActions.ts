@@ -1,6 +1,5 @@
 "use server";
 
-//path: app/node/[nodeId]/nodeActions.ts
 import {
   toggleFavoriteNode,
   getFavoriteNodeState,
@@ -12,7 +11,7 @@ export async function getNodeState(nodeId: number) {
 
 export async function toggleFavoriteNodeAction(
   nodeId: number,
-  favorited: boolean
+  favorited: boolean,
 ) {
   return await toggleFavoriteNode(nodeId, favorited);
 }

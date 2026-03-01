@@ -147,7 +147,6 @@ function AIMessage({
   animate?: boolean;
 }) {
   const isSimpleText = typeof content === "string";
-  console.log(content);
 
   return (
     <div className={`flex justify-start ${animate ? "animate-fade-up" : ""}`}>

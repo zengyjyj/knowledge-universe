@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { insertNodeDraft } from "@/data/queries/nodesDraft";
+import { getSubCategoriesName } from "@/data/queries/subCategories";
 
 const client = new OpenAI({
   baseURL: "https://api.deepseek.com",
@@ -45,6 +46,8 @@ export async function POST(req: Request) {
     if (!question || typeof question !== "string") {
       return Response.json({ error: "question is required" }, { status: 400 });
     }
+    const allSubCategories = await getSubCategoriesName();
+    const subcategoryNames = allSubCategories.map((s) => s.title).join("、");
 
     //调用 DeepSeek API 生成回答
     const completion = await client.chat.completions.create({
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
             ],
             "subcategory_name": "最匹配的子分类名称"
           }
-
+         subcategory_name 必须从以下列表中选择一个，不允许创造新名称：${subcategoryNames}
           禁止 markdown。
           `.trim(),
         },
@@ -86,7 +89,7 @@ export async function POST(req: Request) {
     try {
       await insertNodeDraft({
         user_question: question,
-        subcategery_name: parsed.subcategory_name,
+        subcategory_name: parsed.subcategory_name,
         title: parsed.title,
         definition: parsed.definition,
         question: parsed.question,

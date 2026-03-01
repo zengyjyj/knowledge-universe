@@ -24,6 +24,11 @@ export type SubCategory = {
   intro: string;
 };
 
+export type SubCategoryTitle = {
+  id: number;
+  title: string;
+};
+
 export type Node = {
   id: number;
   subCategory_id: number;
