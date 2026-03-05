@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { removeDraft, publishDraft } from "./actions";
+import { removeDraft, publishDraft, logoutAction } from "./actions";
 
 import StarfieldBackground from "@/components/starfieldBackground";
+import { useRouter } from "next/navigation";
 
 type Draft = {
   id: number;
@@ -34,7 +35,7 @@ export default function DraftsClient({
   >(null);
   const [loading, setLoading] = useState(false);
 
-  const [mode, setMode] = useState<"node" | "goal">("node");
+  const [mode, setMode] = useState<"node" | "goal" | "setting">("node");
 
   async function handlePublish(draft: Draft) {
     if (!selectedSubcategoryId) {
@@ -77,7 +78,7 @@ export default function DraftsClient({
           <SwitchModeButton mode={mode} onChange={setMode} />
         </div>
 
-        {/* 如果以后做 goal draft，这里可以切换组件 */}
+        {/*TODO:goal draft */}
         {mode === "node" && (
           <NodeDraftSection
             drafts={drafts}
@@ -89,8 +90,10 @@ export default function DraftsClient({
             loading={loading}
             onPublish={handlePublish}
             onDelete={handleDelete}
+            setDrafts={setDrafts}
           />
         )}
+        {mode === "setting" && <SettingSection />}
       </main>
     </div>
   );
@@ -100,56 +103,48 @@ function SwitchModeButton({
   mode,
   onChange,
 }: {
-  mode: "node" | "goal";
-  onChange: (mode: "node" | "goal") => void;
+  mode: "node" | "goal" | "setting";
+  onChange: (mode: "node" | "goal" | "setting") => void;
 }) {
+  const tabs = [
+    { key: "node", label: "知识卡片 Node" },
+    { key: "goal", label: "学习计划 Goal" },
+    { key: "setting", label: "设置 Setting" },
+  ] as const;
+
   return (
-    <div
-      onClick={() => onChange(mode === "node" ? "goal" : "node")}
-      className="
-        relative flex items-center  w-64 h-11 mt-5
-        rounded-full  bg-white/5 border border-white/15
-        backdrop-blur   cursor-pointer select-none
-      "
-    >
-      {/* 滑块 */}
-      <div
-        className="
-          absolute top-1 left-1
-          h-9 w-[calc(50%-4px)]
-          rounded-full
-          transition-all duration-300 ease-out
-        "
-        style={{
-          transform: mode === "node" ? "translateX(0)" : "translateX(100%)",
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15))",
-          boxShadow:
-            "0 8px 20px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.4)",
-        }}
-      />
+    <div className="flex items-center gap-8 border-b mt-3 ml-4 mr-4 border-white/20">
+      {tabs.map((tab) => {
+        const active = mode === tab.key;
 
-      {/* 左：Node Draft */}
-      <div className="relative z-10 flex-1 flex items-center justify-center gap-1 text-sm">
-        <span
-          className={`transition-colors ${
-            mode === "node" ? "text-white" : "text-gray-400"
-          }`}
-        >
-          知识卡片Node
-        </span>
-      </div>
+        return (
+          <button
+            key={tab.key}
+            onClick={() => onChange(tab.key)}
+            className="relative pb-3 text-sm transition-colors"
+          >
+            <span
+              className={
+                active ? "text-white" : "text-gray-400 hover:text-gray-200"
+              }
+            >
+              {tab.label}
+            </span>
 
-      {/* 右：Goal Draft */}
-      <div className="relative z-10 flex-1 flex items-center justify-center gap-1 text-sm">
-        <span
-          className={`transition-colors ${
-            mode === "goal" ? "text-white" : "text-gray-400"
-          }`}
-        >
-          学习计划Goal
-        </span>
-      </div>
+            {/* 下划线 */}
+            {active && (
+              <div
+                className="
+                absolute left-0 bottom-0
+                w-full h-[2px]
+                bg-white
+                rounded
+              "
+              />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -164,6 +159,7 @@ function NodeDraftSection({
   loading,
   onPublish,
   onDelete,
+  setDrafts,
 }: {
   drafts: any[];
   subcategories: any[];
@@ -174,20 +170,25 @@ function NodeDraftSection({
   loading: boolean;
   onPublish: (draft: any) => void;
   onDelete: (draft: any) => void;
+  setDrafts: React.Dispatch<React.SetStateAction<Draft[]>>;
 }) {
   function toggleDraft(draft: any) {
     if (activeDraftId === draft.id) {
       setActiveDraftId(null);
       return;
     }
-
     setActiveDraftId(draft.id);
-
     const matched = subcategories.find(
       (s) => s.title === draft.subcategory_name,
     );
 
     setSelectedSubcategoryId(matched?.id || null);
+  }
+
+  function updateDraftField(id: number, field: string, value: string) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.id === id ? { ...d, [field]: value } : d)),
+    );
   }
 
   return (
@@ -224,21 +225,27 @@ function NodeDraftSection({
                 <FormTextareaField
                   label="定义："
                   value={draft.definition}
-                  onChange={(val) => (draft.definition = val)}
+                  onChange={(val) =>
+                    updateDraftField(draft.id, "definition", val)
+                  }
                 />
 
                 {/* 问题 */}
                 <FormTextareaField
                   label="问题："
                   value={draft.question}
-                  onChange={(val) => (draft.question = val)}
+                  onChange={(val) =>
+                    updateDraftField(draft.id, "question", val)
+                  }
                 />
 
                 {/* AI 回答 */}
                 <FormTextareaField
                   label="AI 回答："
                   value={draft.ai_answer}
-                  onChange={(val) => (draft.ai_answer = val)}
+                  onChange={(val) =>
+                    updateDraftField(draft.id, "ai_answer", val)
+                  }
                 />
 
                 {/* 分类 */}
@@ -260,7 +267,13 @@ function NodeDraftSection({
                       setSelectedSubcategoryId(id);
 
                       if (sub) {
-                        draft.subcategory_name = sub.title;
+                        setDrafts((prev) =>
+                          prev.map((d) =>
+                            d.id === draft.id
+                              ? { ...d, subcategory_name: sub.title }
+                              : d,
+                          ),
+                        );
                       }
                     }}
                   >
@@ -316,7 +329,7 @@ function FormTextareaField({
 
     textareaRef.current.style.height = "auto";
     textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
-  }, [value]); // 👈 每次 value 变化都会重新计算高度
+  }, [value]);
 
   return (
     <div className="space-y-2">
@@ -335,5 +348,21 @@ function FormTextareaField({
         "
       />
     </div>
+  );
+}
+
+function SettingSection() {
+  return (
+    <form className="flex" action={logoutAction}>
+      <button
+        type="submit"
+        className="
+        rounded-full px-8 py-3 
+        bg-orange-500/50 text-orange-300 
+        hover:bg-orange-500/70 transition"
+      >
+        退出登录
+      </button>
+    </form>
   );
 }

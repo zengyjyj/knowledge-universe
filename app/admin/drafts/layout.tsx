@@ -1,16 +1,16 @@
 import { getCurrentProfile } from "@/data/queries/profilesServer";
 import { redirect } from "next/navigation";
 
-export default async function UserLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const profile = await getCurrentProfile();
-  console.log("app/user/layout", profile);
+  console.log("app/admin/drafts/layout", profile);
 
-  //admin profile被重定向到admin drafts
-  if (profile?.role == "admin") redirect(`/admin/drafts`);
-
+  if (!profile || profile.role !== "admin") {
+    redirect("/user");
+  }
   return <>{children}</>;
 }

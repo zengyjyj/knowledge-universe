@@ -5,7 +5,10 @@ import {
   deleteNodeDraft,
   publishNodeDraft,
 } from "@/data/queries/nodesDraft";
+import { logoutQuery } from "@/data/queries/profilesServer";
 import { getSubCategoriesName } from "@/data/queries/subCategories";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function fetchNodeDrafts() {
   return await getNodeDrafts();
@@ -29,4 +32,13 @@ export async function publishDraft(payload: {
   subcategoryId: number;
 }) {
   return await publishNodeDraft(payload);
+}
+
+export async function logoutAction() {
+  await logoutQuery();
+
+  revalidatePath("/", "layout");
+  revalidatePath("/user");
+
+  redirect("/user");
 }

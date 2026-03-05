@@ -12,7 +12,6 @@ export default async function UserPage() {
   }
 
   if (profile) {
-    console.log("app/user/page check profile:", profile);
     redirect(`/user/${profile.username}`);
   }
 

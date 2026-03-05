@@ -163,7 +163,7 @@ function AIMessage({
           ) : (
             <>
               <div className="font-semibold ">{content.title}:</div>
-              <div className="text-white/80 mb-2 whitespace-pre-line leading-relaxed">
+              <div className="text-white/80 mb-2 ml-1 whitespace-pre-line leading-relaxed">
                 {content.definition}
               </div>
 

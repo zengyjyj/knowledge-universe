@@ -57,6 +57,7 @@ export type Profile = {
   user_id: number;
   username: string;
   mail: string;
+  role: "admin" | "user";
 };
 
 export type GoalLite = {

@@ -84,6 +84,7 @@ export async function publishNodeDraft({
       title,
       definition,
       question,
+      detail: ai_answer,
       subcategory_id: subcategoryId,
       status: "published",
     })
